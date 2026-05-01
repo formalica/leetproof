@@ -354,11 +354,11 @@ export default function ProblemsClient() {
             </div>
 
             {/* Problems table */}
-            <div className="relative w-full overflow-hidden rounded-xl border border-border">
+            <div className="relative w-full overflow-x-auto rounded-xl border border-border">
               {loading && problemList.length > 0 && (
                 <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-[1px]" />
               )}
-              <table className="w-full table-fixed">
+              <table className="w-full table-fixed min-w-[600px]">
                 <thead>
                   <tr className="border-b border-border bg-surface">
                     

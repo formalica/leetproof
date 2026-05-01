@@ -66,3 +66,23 @@ export interface ProblemListItem {
   sort_order: number;
   user_status?: SubmissionStatus | null;
 }
+
+export interface SolutionComment {
+  id: string;
+  solution_id: string;
+  user_id: string;
+  parent_id: string | null;
+  reply_to_user_id: string | null;
+  content: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommentWithMeta extends SolutionComment {
+  like_count: number;
+  user_has_liked: boolean;
+  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  reply_to_username: string | null;
+  replies: CommentWithMeta[];
+}

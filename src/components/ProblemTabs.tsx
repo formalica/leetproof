@@ -35,6 +35,16 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       .then(({ count }) => setSolved((count ?? 0) > 0));
   }, [user, problem.id]);
 
+  // Auto-switch to submissions tab when a new submission is created
+  useEffect(() => {
+    const handleNewSubmission = () => {
+      setActiveTab("submissions");
+      window.history.replaceState(null, "", `/problems/${problem.slug}/submissions`);
+    };
+    window.addEventListener("leetlean:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetlean:submission-created", handleNewSubmission);
+  }, [problem.slug]);
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "description", label: "Description" },
     { id: "solutions", label: "Solutions" },

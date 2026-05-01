@@ -54,6 +54,20 @@ export default function SubmissionsList({ problemId }: SubmissionsListProps) {
     return () => window.removeEventListener("focus", handleFocus);
   }, [fetchSubmissions]);
 
+  // Listen for new submission created from editor
+  useEffect(() => {
+    const handleNewSubmission = (e: Event) => {
+      const sub = (e as CustomEvent).detail as Submission;
+      if (sub && sub.problem_id === problemId) {
+        setSubmissions((prev) => [sub, ...prev]);
+        setViewing(sub);
+        window.history.replaceState(null, "", `#${sub.id}`);
+      }
+    };
+    window.addEventListener("leetlean:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetlean:submission-created", handleNewSubmission);
+  }, [problemId]);
+
   const openSubmission = (sub: Submission) => {
     setViewing(sub);
     window.history.replaceState(null, "", `#${sub.id}`);

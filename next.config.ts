@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
       // lean4monaco uses Node.js modules in browser (same as vite-plugin-node-polyfills)
       path: "path-browserify",
       fs: "memfs",
+      perf_hooks: "./src/lib/perf-hooks-stub.ts",
     },
   },
 

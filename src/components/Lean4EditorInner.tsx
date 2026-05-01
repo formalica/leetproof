@@ -304,21 +304,21 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName 
       const autoName = `Submission ${nextNum}`;
 
       const status = result.valid ? 'accepted' : 'wrong';
-      const { error } = await supabase.from('submissions').insert({
+      const { data: insertedData, error } = await supabase.from('submissions').insert({
         user_id: user.id,
         problem_id: problemId,
         code: currentCode,
         status,
         name: autoName,
         errors: result.valid ? null : (result.error || null),
-      });
+      }).select('*').single();
 
       if (error) {
         setSubmitMessage({ type: 'error', text: `Failed to save: ${error.message}` });
-      } else if (result.valid) {
-        setSubmitMessage({ type: 'success', text: 'Proof accepted!' });
       } else {
-        setSubmitMessage({ type: 'error', text: result.error || 'Proof rejected.' });
+        // Silently open the new submission
+        setSubmitMessage(null);
+        window.dispatchEvent(new CustomEvent("leetlean:submission-created", { detail: insertedData }));
       }
     } catch (err) {
       setSubmitMessage({ type: 'error', text: `Verification failed: ${err instanceof Error ? err.message : String(err)}` });
