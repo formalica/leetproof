@@ -1,4 +1,4 @@
-# LeetLean — Prompt History
+# LeetProof — Prompt History
 
 > This file documents the prompts given to AI agents during development.
 > Future AI agents should read this to understand what has been built and what the user expects.
@@ -19,7 +19,7 @@
 > it should be in serverless dbs of supabase, only server of itself lean4web
 > should be running server
 >
-> there should be main page which describes what is leetlean and page of
+> there should be main page which describes what is leetproof and page of
 > problems where table contain problems and pages of problems itself, problem
 > page should contain description of problem and lean4web editor
 >

@@ -8,7 +8,7 @@ main_theorem_name: "hello_lean"
 theorem_type: "True"
 allowed_axioms: []
 starter_code: |
-  -- Welcome to LeetLean!
+  -- Welcome to LeetProof!
   -- Your goal: make this file compile with no errors.
   -- Replace `sorry` with a valid proof.
 
@@ -17,7 +17,7 @@ starter_code: |
 ---
 
  
-Welcome to your first LeetLean problem! This is a warmup to make sure you can use the editor.
+Welcome to your first LeetProof problem! This is a warmup to make sure you can use the editor.
 
 ### Goal
 

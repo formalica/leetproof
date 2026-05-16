@@ -1,11 +1,11 @@
 {
-  "name": "leetlean",
+  "name": "leetproof",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "NEXT_PUBLIC_LEETLEAN_SERVERLESS=true next build",
+    "build:static": "NEXT_PUBLIC_LEETPROOF_SERVERLESS=true next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx scripts/seed-problems.ts",

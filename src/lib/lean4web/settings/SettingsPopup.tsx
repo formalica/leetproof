@@ -1,4 +1,4 @@
-// LEETLEAN: Replaced MUI components (Switch, Slider, Box) with native HTML
+// LEETPROOF: Replaced MUI components (Switch, Slider, Box) with native HTML
 // to avoid heavy @mui/material dependency. Styled with lean4web CSS variables.
 import { useAtom } from 'jotai/react'
 import { useState } from 'react'

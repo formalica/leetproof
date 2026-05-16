@@ -1,8 +1,8 @@
-// LEETLEAN: Per-problem code persistence via localStorage.
+// LEETPROOF: Per-problem code persistence via localStorage.
 import { atom } from 'jotai'
 
-const STORAGE_PREFIX = 'leetlean:editor-code:'
-const OLD_GLOBAL_KEY = 'leetlean:editor-code'
+const STORAGE_PREFIX = 'leetproof:editor-code:'
+const OLD_GLOBAL_KEY = 'leetproof:editor-code'
 
 /**
  * Remove the legacy global key (used before per-problem caching was added).
@@ -15,7 +15,7 @@ function migrateOldGlobalKey() {
   _migrated = true
   try {
     if (localStorage.getItem(OLD_GLOBAL_KEY) !== null) {
-      console.debug('[LeetLean] Removing legacy global editor-code key')
+      console.debug('[LeetProof] Removing legacy global editor-code key')
       localStorage.removeItem(OLD_GLOBAL_KEY)
     }
   } catch {
@@ -28,13 +28,13 @@ export function loadCodeForProblem(problemId: string): string {
   if (typeof window === 'undefined') return ''
   migrateOldGlobalKey()
   if (!problemId) {
-    console.warn('[LeetLean] loadCodeForProblem called with empty problemId')
+    console.warn('[LeetProof] loadCodeForProblem called with empty problemId')
     return ''
   }
   try {
     const key = STORAGE_PREFIX + problemId
     const saved = localStorage.getItem(key) ?? ''
-    console.debug('[LeetLean] loadCodeForProblem', { problemId, key, hasCode: saved.length > 0 })
+    console.debug('[LeetProof] loadCodeForProblem', { problemId, key, hasCode: saved.length > 0 })
     return saved
   } catch {
     return ''
@@ -44,7 +44,7 @@ export function loadCodeForProblem(problemId: string): string {
 /** Save code for a specific problem to localStorage. */
 export function saveCodeForProblem(problemId: string, code: string) {
   if (!problemId) {
-    console.warn('[LeetLean] saveCodeForProblem called with empty problemId — skipping')
+    console.warn('[LeetProof] saveCodeForProblem called with empty problemId — skipping')
     return
   }
   try {

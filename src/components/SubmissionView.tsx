@@ -110,7 +110,7 @@ export default function SubmissionView({
 
   const handleLoadIntoEditor = () => {
     if (!window.confirm("Load this submission's code into the editor? Your current code will be replaced.")) return;
-    window.dispatchEvent(new CustomEvent("leetlean:load-code", { detail: { code: sub.code } }));
+    window.dispatchEvent(new CustomEvent("leetproof:load-code", { detail: { code: sub.code } }));
     onBack();
   };
 

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const isServerless = process.env.NEXT_PUBLIC_LEETLEAN_SERVERLESS === "true";
+const isServerless = process.env.NEXT_PUBLIC_LEETPROOF_SERVERLESS === "true";
 const isFirebase = process.env.NEXT_PUBLIC_DB_PROVIDER === "firebase";
 
 const nextConfig: NextConfig = {
@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   ...(isServerless && {
     output: "export",
     // GitHub Pages project sites are served from /<repo-name>/.
-    // Set NEXT_PUBLIC_BASE_PATH=/leetlean (or your repo name) when deploying.
+    // Set NEXT_PUBLIC_BASE_PATH=/leetproof (or your repo name) when deploying.
     basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
   }),
 

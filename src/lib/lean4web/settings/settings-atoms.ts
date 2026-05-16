@@ -1,4 +1,4 @@
-// LEETLEAN: Simplified settings-atoms - removed URL-based settings persistence
+// LEETPROOF: Simplified settings-atoms - removed URL-based settings persistence
 // to avoid conflicts with Next.js routing. Settings stored in localStorage only.
 import { atomWithStorage } from 'jotai/utils'
 import { atom } from 'jotai/vanilla'
@@ -20,7 +20,7 @@ const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:setting
 })
 
 /** The settings which apply for the current session
- * LEETLEAN: Initialize theme from host app's data-theme attribute, not hardcoded default
+ * LEETPROOF: Initialize theme from host app's data-theme attribute, not hardcoded default
  */
 const settingsBaseAtom = atom<Settings>({
   saved: false,
@@ -35,7 +35,7 @@ const settingsBaseAtom = atom<Settings>({
  * - current (local) state (base)
  * - default values (base)
  *
- * LEETLEAN: Removed URL param-based settings (settingsUrlAtom) to avoid Next.js routing conflicts.
+ * LEETPROOF: Removed URL param-based settings (settingsUrlAtom) to avoid Next.js routing conflicts.
  */
 export const settingsAtom = atom(
   (get) => {

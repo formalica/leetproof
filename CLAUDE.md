@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Claude-Specific Instructions for LeetLean
+# Claude-Specific Instructions for LeetProof
 
 ## Code Style
 - Use TypeScript strict mode
@@ -24,7 +24,7 @@
 ## Lean4web Editor Integration
 - The editor is embedded directly using `lean4monaco` (not via iframe)
 - lean4web source files are in `src/lib/lean4web/` for easy syncing with upstream
-- Code is persisted in browser `localStorage` (key: `leetlean:editor-code`)
+- Code is persisted in browser `localStorage` (key: `leetproof:editor-code`)
 - Editor connects to remote WebSocket at `wss://live.lean-lang.org/websocket/MathlibDemo`
 - Run `npm run copy:lean-assets` after `npm install` to copy static infoview/font files
 

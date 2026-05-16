@@ -14,7 +14,7 @@ interface ProblemPageProps {
 }
 
 export async function generateStaticParams() {
-  if (process.env.NEXT_PUBLIC_LEETLEAN_SERVERLESS !== "true") return [];
+  if (process.env.NEXT_PUBLIC_LEETPROOF_SERVERLESS !== "true") return [];
   const db = await getServerDatabase();
   const { problems } = await db.getProblems({ limit: 10000 });
   // For each problem, generate the base route (no tab segments).

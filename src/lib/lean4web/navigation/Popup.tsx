@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-// LEETLEAN: Renamed 'hidden' to 'lean4web-hidden' to avoid global CSS conflict
+// LEETPROOF: Renamed 'hidden' to 'lean4web-hidden' to avoid global CSS conflict
 /** A popup which overlays the entire screen. */
 export function Popup({
   open,

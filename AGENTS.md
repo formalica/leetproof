@@ -4,13 +4,13 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# LeetLean — AI Agent Context Document
+# LeetProof — AI Agent Context Document
 
 > This file provides context for AI agents (Copilot, Claude, Cursor, etc.) working on this codebase.
 
 ## Project Summary
 
-**LeetLean** is a competitive programming platform for the **Lean 4** programming language. Users prove theorems and verify code, similar to LeetCode but for formal verification.
+**LeetProof** is a competitive programming platform for the **Lean 4** programming language. Users prove theorems and verify code, similar to LeetCode but for formal verification.
 
 ## Tech Stack
 
@@ -25,7 +25,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Key Architecture Decisions
 
 1. **No running backend server** — All data comes from Supabase (serverless Postgres + Auth). The code editor connects directly to the remote Lean server at `wss://live.lean-lang.org`.
-2. **lean4monaco embedded directly** — The editor uses the `lean4monaco` npm package which provides Monaco editor + Lean 4 LSP integration. No iframe. Code is persisted in browser `localStorage` (key: `leetlean:editor-code`). See `src/components/Lean4EditorInner.tsx`.
+2. **lean4monaco embedded directly** — The editor uses the `lean4monaco` npm package which provides Monaco editor + Lean 4 LSP integration. No iframe. Code is persisted in browser `localStorage` (key: `leetproof:editor-code`). See `src/components/Lean4EditorInner.tsx`.
 3. **lean4web source files in `src/lib/lean4web/`** — Adapted lean4web components and utilities are in a separate directory for easy syncing with upstream [lean4web](https://github.com/leanprover-community/lean4web) changes.
 4. **Problems stored in Supabase** — But authored as markdown files in `/problems/` with YAML frontmatter. A seed script (`scripts/seed-problems.ts`) loads them into the DB.
 5. **Row Level Security (RLS)** — Problems are public-read. Submissions are per-user. Profiles auto-created on signup.
@@ -34,7 +34,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Directory Structure
 
 ```
-leetlean/
+leetproof/
 ├── .env.local.example        # Template for environment variables
 ├── problems/                  # Markdown problem files (source of truth)
 │   ├── 001-hello-lean.md
@@ -135,7 +135,7 @@ For auto-migration, it tries these methods in order:
 The editor uses **lean4monaco** (from npm) which provides Monaco editor + Lean 4 LSP client.
 
 **Code persistence:**
-- Code is stored in browser `localStorage` with key `leetlean:editor-code`
+- Code is stored in browser `localStorage` with key `leetproof:editor-code`
 - Code persists across page refreshes without URL manipulation
 - User can open current code in live.lean-lang.org via "Open in new tab ↗" button
 
@@ -169,9 +169,9 @@ The hints system provides structured, progressive guidance for solving problems.
 - **UI**: The "Hints" tab in `ProblemTabs` shows hint packs sorted by likes, with the top-liked pack auto-expanded.
 - **Editor integration**: Code completions are applied via `executeEdits()` (undo-safe via Ctrl+Z).
 - **Events**: Communication between HintsTab and editor uses CustomEvents:
-  - `leetlean:request-code` — HintsTab requests current editor code
-  - `leetlean:code-updated` — Editor broadcasts code changes
-  - `leetlean:apply-hint-code` — HintsTab sends new code to editor
+  - `leetproof:request-code` — HintsTab requests current editor code
+  - `leetproof:code-updated` — Editor broadcasts code changes
+  - `leetproof:apply-hint-code` — HintsTab sends new code to editor
 
 ### YAML Format (step-based)
 

@@ -397,9 +397,9 @@ function HintPackContent({ hints }: { hints: ParsedHint[] }) {
       if (typeof code === "string") setEditorCode(code);
     };
 
-    window.addEventListener("leetlean:code-updated", handleCodeChange);
-    window.dispatchEvent(new CustomEvent("leetlean:request-code"));
-    return () => window.removeEventListener("leetlean:code-updated", handleCodeChange);
+    window.addEventListener("leetproof:code-updated", handleCodeChange);
+    window.dispatchEvent(new CustomEvent("leetproof:request-code"));
+    return () => window.removeEventListener("leetproof:code-updated", handleCodeChange);
   }, []);
 
   const toggleStep = (key: string) => {
@@ -554,7 +554,7 @@ function StepCompletionButtons({
 
     if (newCode !== null) {
       window.dispatchEvent(
-        new CustomEvent("leetlean:apply-hint-code", { detail: { code: newCode } })
+        new CustomEvent("leetproof:apply-hint-code", { detail: { code: newCode } })
       );
     }
   };

@@ -42,8 +42,8 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       setActiveTab("submissions");
       window.history.replaceState(null, "", `/problems/${problem.slug}/submissions`);
     };
-    window.addEventListener("leetlean:submission-created", handleNewSubmission);
-    return () => window.removeEventListener("leetlean:submission-created", handleNewSubmission);
+    window.addEventListener("leetproof:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetproof:submission-created", handleNewSubmission);
   }, [problem.slug]);
 
   const tabs: { id: Tab; label: string }[] = [

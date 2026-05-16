@@ -83,7 +83,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
 
   // Storage key for per-problem caching
   const storageId = problemId || problemSlug || '';
-  console.debug('[LeetLean] Lean4EditorCore mounted', { problemId, problemSlug, storageId });
+  console.debug('[LeetProof] Lean4EditorCore mounted', { problemId, problemSlug, storageId });
 
   // Sync theme from host app (data-theme attribute) → settings atom
   useEffect(() => {
@@ -110,7 +110,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
   useEffect(() => {
     if (!editorRef.current || !infoviewRef.current) return;
 
-    console.debug('[LeetLean] Starting editor');
+    console.debug('[LeetProof] Starting editor');
     const _leanMonaco = new LeanMonaco();
     const _leanMonacoEditor = new LeanMonacoEditor();
 
@@ -176,7 +176,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
           };
         }
       } catch (err) {
-        console.error('[LeetLean] Editor initialization error:', err);
+        console.error('[LeetProof] Editor initialization error:', err);
       }
     })();
 
@@ -236,8 +236,8 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
         if (storageId) saveCodeForProblem(storageId, code);
       }
     };
-    window.addEventListener('leetlean:load-code', handleLoadCode);
-    return () => window.removeEventListener('leetlean:load-code', handleLoadCode);
+    window.addEventListener('leetproof:load-code', handleLoadCode);
+    return () => window.removeEventListener('leetproof:load-code', handleLoadCode);
   }, [editor, setCode, storageId]);
 
   // Listen for hint code application events (uses executeEdits for undo support)
@@ -259,8 +259,8 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
         if (storageId) saveCodeForProblem(storageId, newCode);
       }
     };
-    window.addEventListener('leetlean:apply-hint-code', handleApplyHint);
-    return () => window.removeEventListener('leetlean:apply-hint-code', handleApplyHint);
+    window.addEventListener('leetproof:apply-hint-code', handleApplyHint);
+    return () => window.removeEventListener('leetproof:apply-hint-code', handleApplyHint);
   }, [editor, setCode, storageId]);
 
   // Broadcast code changes to hints tab & respond to code requests
@@ -268,15 +268,15 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     if (!editor) return;
     const broadcastCode = () => {
       const val = editor.getModel()?.getValue() ?? '';
-      window.dispatchEvent(new CustomEvent('leetlean:code-updated', { detail: { code: val } }));
+      window.dispatchEvent(new CustomEvent('leetproof:code-updated', { detail: { code: val } }));
     };
     const handleRequestCode = () => broadcastCode();
-    window.addEventListener('leetlean:request-code', handleRequestCode);
+    window.addEventListener('leetproof:request-code', handleRequestCode);
     const disposable = editor.onDidChangeModelContent(() => broadcastCode());
     // Broadcast initial code
     broadcastCode();
     return () => {
-      window.removeEventListener('leetlean:request-code', handleRequestCode);
+      window.removeEventListener('leetproof:request-code', handleRequestCode);
       disposable.dispose();
     };
   }, [editor]);
@@ -364,7 +364,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
       } else {
         // Silently open the new submission
         setSubmitMessage(null);
-        window.dispatchEvent(new CustomEvent("leetlean:submission-created", { detail: insertedData }));
+        window.dispatchEvent(new CustomEvent("leetproof:submission-created", { detail: insertedData }));
       }
     } catch (err) {
       setSubmitMessage({ type: 'error', text: `Verification failed: ${err instanceof Error ? err.message : String(err)}` });

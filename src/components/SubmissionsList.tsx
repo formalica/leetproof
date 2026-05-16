@@ -64,8 +64,8 @@ export default function SubmissionsList({ problemId }: SubmissionsListProps) {
         window.history.replaceState(null, "", `#${sub.id}`);
       }
     };
-    window.addEventListener("leetlean:submission-created", handleNewSubmission);
-    return () => window.removeEventListener("leetlean:submission-created", handleNewSubmission);
+    window.addEventListener("leetproof:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetproof:submission-created", handleNewSubmission);
   }, [problemId]);
 
   const openSubmission = (sub: Submission) => {

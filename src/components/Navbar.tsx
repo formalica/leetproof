@@ -39,7 +39,7 @@ export default function Navbar() {
           {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-foreground">
-              Leet<span className="text-accent">Lean</span>
+              Leet<span className="text-accent">Proof</span>
             </span>
           </Link>
 
@@ -90,7 +90,7 @@ export default function Navbar() {
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div ref={modalRef} className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-2xl">
                       <h2 className="mb-1 text-center text-lg font-semibold text-foreground">
-                        Sign in to LeetLean
+                        Sign in to LeetProof
                       </h2>
                       <p className="mb-6 text-center text-sm text-muted">
                         Choose a provider to continue
