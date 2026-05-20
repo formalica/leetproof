@@ -3,7 +3,7 @@ slug: "nat-add-succ"
 title: "Natural Number: m + (n + 1) = (m + n) + 1"
 difficulty: "easy"
 tags: ["natural-numbers", "arithmetic"]
-sort_order: 6
+sort_order: 4
 main_theorem_name: "add_succ"
 theorem_type: "(m n : Nat) \u2192 m + n.succ = (m + n).succ"
 allowed_axioms: []

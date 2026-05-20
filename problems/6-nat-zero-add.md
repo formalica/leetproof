@@ -3,7 +3,7 @@ slug: "nat-zero-add"
 title: "Natural Number: 0 + n = n"
 difficulty: "easy"
 tags: ["natural-numbers", "induction", "arithmetic"]
-sort_order: 4
+sort_order: 6
 main_theorem_name: "zero_add"
 theorem_type: "(n : Nat) \u2192 0 + n = n"
 allowed_axioms: []
