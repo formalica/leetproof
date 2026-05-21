@@ -17,9 +17,7 @@ import { verifyProof } from '@/lib/lean-verify';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import type { Theme } from '@/lib/lean4web/settings/settings-types';
-
-const WSS_URL = 'wss://live.lean-lang.org/websocket/MathlibDemo';
-const PROJECT_FOLDER = 'MathlibDemo';
+import { LEAN_VERSIONS, getWssUrl, getProjectFolder, type LeanVersion } from '@/lib/lean-versions';
 
 interface Lean4EditorInnerProps {
   code?: string;
@@ -28,12 +26,15 @@ interface Lean4EditorInnerProps {
   mainTheoremName?: string;
   theoremType?: string;
   allowedAxioms?: string[];
+  version: LeanVersion;
+  onVersionChange: (v: LeanVersion) => void;
+  pendingCode?: string | null;
 }
 
-export default function Lean4EditorInner({ code: initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms }: Lean4EditorInnerProps) {
+export default function Lean4EditorInner({ code: initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms, version, onVersionChange, pendingCode }: Lean4EditorInnerProps) {
   return (
     <Provider>
-      <Lean4EditorCore initialCode={initialCode} problemId={problemId} problemSlug={problemSlug} mainTheoremName={mainTheoremName} theoremType={theoremType} allowedAxioms={allowedAxioms} />
+      <Lean4EditorCore initialCode={initialCode} problemId={problemId} problemSlug={problemSlug} mainTheoremName={mainTheoremName} theoremType={theoremType} allowedAxioms={allowedAxioms} version={version} onVersionChange={onVersionChange} pendingCode={pendingCode} />
     </Provider>
   );
 }
@@ -66,7 +67,7 @@ function buildVSCodeOptions(settings: { theme: string; wordWrap: boolean; accept
   };
 }
 
-function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms }: { initialCode?: string; problemId?: string; problemSlug?: string; mainTheoremName?: string; theoremType?: string; allowedAxioms?: string[] }) {
+function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms, version, onVersionChange, pendingCode }: { initialCode?: string; problemId?: string; problemSlug?: string; mainTheoremName?: string; theoremType?: string; allowedAxioms?: string[]; version: LeanVersion; onVersionChange: (v: LeanVersion) => void; pendingCode?: string | null }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const infoviewRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -77,9 +78,14 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
   const [, setScreenWidth] = useAtom(screenWidthAtom);
   const [code, setCode] = useAtom(codeAtom);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [versionMenuOpen, setVersionMenuOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const { user } = useAuth();
+  const versionBtnRef = useRef<HTMLDivElement>(null);
+
+  const wssUrl = getWssUrl(version);
+  const projectFolder = getProjectFolder(version);
 
   // Storage key for per-problem caching
   const storageId = problemId || problemSlug || '';
@@ -121,26 +127,28 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     (async () => {
       try {
         await _leanMonaco.start({
-          websocket: { url: WSS_URL },
+          websocket: { url: wssUrl },
           htmlElement: editorRef.current ?? undefined,
           vscode: buildVSCodeOptions(settings),
         });
         if (disposed) return;
 
         // Load per-problem saved code, fall back to starter code
+        // If pendingCode is provided (from loading a submission/solution), use that instead
         const savedCode = storageId ? loadCodeForProblem(storageId) : '';
-        const codeToUse = savedCode || initialCode || '';
+        const codeToUse = pendingCode || savedCode || initialCode || '';
 
         // Use a unique file name per problem to prevent Monaco model sharing
         // across different problems (avoids cross-contamination of saved code).
         const fileSlug = problemSlug || storageId || 'default';
-        const fileName = `${PROJECT_FOLDER}/${fileSlug}.lean`;
+        const fileName = `${projectFolder}/${fileSlug}.lean`;
         await _leanMonacoEditor.start(editorRef.current!, fileName, codeToUse);
         if (disposed) return;
 
         setEditor(_leanMonacoEditor.editor);
         setCode(codeToUse);
         leanMonacoRef.current = _leanMonaco;
+        if (pendingCode && storageId) saveCodeForProblem(storageId, codeToUse);
 
         // Keep code atom + per-problem localStorage in sync with editor changes
         _leanMonacoEditor.editor?.onDidChangeModelContent(() => {
@@ -226,12 +234,21 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     };
   }, [handleKeyDown, handleKeyUp]);
 
-  // Listen for "load code into editor" events from SubmissionView
+  // Listen for "load code into editor" events from SubmissionView/SolutionView
   useEffect(() => {
     const handleLoadCode = (e: Event) => {
       const code = (e as CustomEvent).detail?.code;
       if (code && editor) {
-        editor.getModel()?.setValue(code);
+        const model = editor.getModel();
+        if (!model) return;
+        const fullRange = model.getFullModelRange();
+        editor.pushUndoStop();
+        editor.executeEdits('load-code', [{
+          range: fullRange,
+          text: code,
+          forceMoveMarkers: true,
+        }]);
+        editor.pushUndoStop();
         setCode(code);
         if (storageId) saveCodeForProblem(storageId, code);
       }
@@ -281,6 +298,18 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     };
   }, [editor]);
 
+  // Close version menu on outside click
+  useEffect(() => {
+    if (!versionMenuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (versionBtnRef.current && !versionBtnRef.current.contains(e.target as Node)) {
+        setVersionMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [versionMenuOpen]);
+
   // Disable context menu outside editor
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
@@ -300,7 +329,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     const currentCode = code || initialCode || '';
     if (!currentCode) return 'https://live.lean-lang.org';
     const encoded = encodeURIComponent(currentCode);
-    return `https://live.lean-lang.org/#code=${encoded}`;
+    return `https://live.lean-lang.org/#code=${encoded}&project=${version}`;
   })();
 
   // Reset code to starter code
@@ -357,6 +386,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
         status,
         name: autoName,
         errors: result.valid ? null : (result.error || null),
+        version,
       }).select('*').single();
 
       if (error) {
@@ -371,7 +401,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     } finally {
       setSubmitting(false);
     }
-  }, [user, problemId, mainTheoremName, theoremType, allowedAxioms, editor]);
+  }, [user, problemId, mainTheoremName, theoremType, allowedAxioms, editor, version]);
 
   return (
     <div className="lean4web-root monaco-workbench">
@@ -403,19 +433,64 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
             </button>
           )}
           <button
-            onClick={handleReset}
-            className="vscode-menu-btn"
-            title="Reset to starter code"
-          >
-            Reset
-          </button>
-          <button
             onClick={() => leanMonacoRef.current?.restart()}
             className="vscode-menu-btn"
             title="Restart Lean server"
           >
             Restart
           </button>
+          <button
+            onClick={handleReset}
+            className="vscode-menu-btn"
+            title="Reset to starter code"
+          >
+            Reset
+          </button>
+          <div ref={versionBtnRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setVersionMenuOpen(!versionMenuOpen)}
+              className="vscode-menu-btn"
+              title="Mathlib version"
+            >
+              {LEAN_VERSIONS.find(v => v.value === version)?.label ?? version}
+            </button>
+            {versionMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+
+                  marginTop: '4px',
+                  border: '1px solid var(--border)',
+                  borderRadius: '6px',
+                  backgroundColor: 'var(--surface)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 100,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                }}
+              >
+                {LEAN_VERSIONS.map(v => (
+                  <button
+                    key={v.value}
+                    onClick={() => { onVersionChange(v.value); setVersionMenuOpen(false); }}
+                    className="vscode-menu-btn"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'center',
+                      borderRadius: 0,
+                      padding: '6px 8px',
+                      fontWeight: v.value === version ? 600 : 400,
+                      color: v.value === version ? 'var(--accent)' : 'var(--foreground)',
+                    }}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setSettingsOpen(true)}
             className="vscode-menu-btn"

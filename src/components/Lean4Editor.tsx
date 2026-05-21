@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { loadSavedVersion, saveVersion, type LeanVersion } from "@/lib/lean-versions";
 
-// Dynamic import with SSR disabled — Monaco editor cannot run on the server.
 const Lean4EditorInner = dynamic(() => import("./Lean4EditorInner"), {
   ssr: false,
   loading: () => (
@@ -30,7 +31,45 @@ interface Lean4EditorProps {
  * Code is persisted per-problem in localStorage.
  */
 export default function Lean4Editor({ code, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms }: Lean4EditorProps) {
-  // key forces full remount (including WebSocket reconnect) when the problem changes,
-  // so the init useEffect re-runs and loads the correct per-problem saved code.
-  return <Lean4EditorInner key={problemId || problemSlug} code={code} problemId={problemId} problemSlug={problemSlug} mainTheoremName={mainTheoremName} theoremType={theoremType} allowedAxioms={allowedAxioms} />;
+  const [version, setVersion] = useState<LeanVersion>(() => loadSavedVersion());
+  const pendingCodeRef = useRef<string | null>(null);
+
+  const handleVersionChange = useCallback((newVersion: LeanVersion) => {
+    saveVersion(newVersion);
+    setVersion(newVersion);
+  }, []);
+
+  useEffect(() => {
+    const handleLoadCode = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.version && detail.version !== version) {
+        pendingCodeRef.current = detail.code;
+        saveVersion(detail.version);
+        setVersion(detail.version);
+        e.stopImmediatePropagation();
+      }
+    };
+    window.addEventListener('leetproof:load-code', handleLoadCode);
+    return () => window.removeEventListener('leetproof:load-code', handleLoadCode);
+  }, [version]);
+
+  const pendingCode = pendingCodeRef.current;
+  if (pendingCode !== null) {
+    pendingCodeRef.current = null;
+  }
+
+  return (
+    <Lean4EditorInner
+      key={`${problemId || problemSlug}:${version}`}
+      code={code}
+      problemId={problemId}
+      problemSlug={problemSlug}
+      mainTheoremName={mainTheoremName}
+      theoremType={theoremType}
+      allowedAxioms={allowedAxioms}
+      version={version}
+      onVersionChange={handleVersionChange}
+      pendingCode={pendingCode}
+    />
+  );
 }

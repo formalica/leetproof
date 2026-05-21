@@ -116,6 +116,14 @@ export default function SolutionView({ solution: sol, onBack, onLike, onUpdated 
     }
   };
 
+  const handleLoadIntoEditor = () => {
+    if (!sol.submissions?.code) return;
+    if (!window.confirm("Load this solution's code into the editor? Your current code will be replaced.")) return;
+    window.dispatchEvent(new CustomEvent("leetproof:load-code", {
+      detail: { code: sol.submissions.code, version: sol.version }
+    }));
+  };
+
   return (
     <div className="space-y-3">
       {/* Top bar: back + upvote + actions */}
@@ -142,6 +150,15 @@ export default function SolutionView({ solution: sol, onBack, onLike, onUpdated 
             </svg>
             {sol.like_count}
           </button>
+          {sol.submissions?.code && (
+            <button
+              onClick={handleLoadIntoEditor}
+              className="vscode-menu-btn"
+              title={`Load code into the Editor (${sol.version || 'mathlib-v4.28.0'})`}
+            >
+              Load in Editor
+            </button>
+          )}
           <button
             onClick={handleCopyLink}
             className="vscode-menu-btn"

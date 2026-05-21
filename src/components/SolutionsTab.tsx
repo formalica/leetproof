@@ -17,6 +17,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
   const [loading, setLoading] = useState(true);
   const [allTags, setAllTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [excludedTags, setExcludedTags] = useState<string[]>([]);
   const [showMine, setShowMine] = useState(false);
   const [viewingSolution, setViewingSolution] = useState<SolutionWithMeta | null>(null);
   const pendingSolutionIdRef = useRef<string | undefined>(
@@ -41,6 +42,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
         query = query.eq("user_id", user.id);
       }
 
+      // Combine solution-level included tags
       if (selectedTags.length > 0) {
         query = query.contains("tags", selectedTags);
       }
@@ -53,7 +55,15 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
         return;
       }
 
-      if (!solutionsData || solutionsData.length === 0) {
+      // Filter out solutions with excluded tags (client-side)
+      let filtered = solutionsData || [];
+      if (excludedTags.length > 0) {
+        filtered = filtered.filter(
+          (s: any) => !s.tags?.some((t: string) => excludedTags.includes(t))
+        );
+      }
+
+      if (filtered.length === 0) {
         setSolutions([]);
         setAllTags([]);
         setLoading(false);
@@ -61,7 +71,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       }
 
       // Fetch profiles for all solution authors
-      const userIds = [...new Set(solutionsData.map((s: any) => s.user_id))];
+      const userIds = [...new Set(filtered.map((s: any) => s.user_id))];
       const { data: profilesData } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url, email")
@@ -72,7 +82,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       }
 
       // Fetch submission code for each solution
-      const submissionIds = [...new Set(solutionsData.map((s: any) => s.submission_id))];
+      const submissionIds = [...new Set(filtered.map((s: any) => s.submission_id))];
       const { data: submissionsData } = await supabase
         .from("submissions")
         .select("id, code, status")
@@ -83,7 +93,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       }
 
       // Fetch like counts
-      const solutionIds = solutionsData.map((s: any) => s.id);
+      const solutionIds = filtered.map((s: any) => s.id);
       const { data: likesData } = await supabase
         .from("solution_likes")
         .select("solution_id, user_id")
@@ -98,7 +108,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
         }
       }
 
-      const enriched: SolutionWithMeta[] = solutionsData.map((s: any) => ({
+      const enriched: SolutionWithMeta[] = filtered.map((s: any) => ({
         ...s,
         like_count: likeCounts[s.id] || 0,
         user_has_liked: userLikes.has(s.id),
@@ -120,10 +130,10 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
         pendingSolutionIdRef.current = undefined;
       }
 
-      // Collect all tags
+      // Collect all tags (from unfiltered data for stable tag list)
       const tagSet = new Set<string>();
-      for (const s of enriched) {
-        for (const t of s.tags) tagSet.add(t);
+      for (const s of (solutionsData || [])) {
+        for (const t of (s as any).tags || []) tagSet.add(t);
       }
       setAllTags(Array.from(tagSet).sort());
     } catch (err) {
@@ -131,16 +141,24 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
     } finally {
       setLoading(false);
     }
-  }, [problemId, user, authLoading, showMine, selectedTags]);
+  }, [problemId, user, authLoading, showMine, selectedTags, excludedTags]);
 
   useEffect(() => {
     fetchSolutions();
   }, [fetchSolutions]);
 
   const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    if (selectedTags.includes(tag)) {
+      // included → excluded
+      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+      setExcludedTags((prev) => [...prev, tag]);
+    } else if (excludedTags.includes(tag)) {
+      // excluded → neutral
+      setExcludedTags((prev) => prev.filter((t) => t !== tag));
+    } else {
+      // neutral → included
+      setSelectedTags((prev) => [...prev, tag]);
+    }
   };
 
   const handleLike = async (solutionId: string) => {
@@ -242,10 +260,13 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
           <button
             key={tag}
             onClick={() => toggleTag(tag)}
+            title={selectedTags.includes(tag) ? "Included" : excludedTags.includes(tag) ? "Excluded" : ""}
             className={`cursor-pointer inline-flex items-center rounded-md px-2 py-0.5 text-xs transition ${
               selectedTags.includes(tag)
                 ? "bg-accent/15 text-accent"
-                : "bg-badge text-muted hover:text-foreground"
+                : excludedTags.includes(tag)
+                  ? "bg-orange-500/15 text-orange-500"
+                  : "bg-badge text-muted hover:text-foreground"
             }`}
           >
             {tag}

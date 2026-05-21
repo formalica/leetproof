@@ -91,12 +91,12 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       </div>
 
       {/* Tab bar */}
-      <div className="shrink-0 flex border-b border-border px-6">
+      <div className="shrink-0 flex flex-wrap border-b border-border px-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+            className={`px-3 py-2 text-sm font-medium transition-colors relative ${
               activeTab === tab.id
                 ? "text-foreground"
                 : "text-muted hover:text-foreground"

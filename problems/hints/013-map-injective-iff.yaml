@@ -1,0 +1,49 @@
+name: "Two Lemmas Approach"
+hints:
+  - force_find: "(?:theorem map_injective_mp[\\s\\S]*?(?=\\ntheorem|\\n\\ntheorem|$))?(?:theorem map_injective_mpr[\\s\\S]*?(?=\\ntheorem|\\n\\ntheorem|$))?theorem map_injective_iff[\\s\\S]*?(?=\\n\\n|\\n--|\\n#|$)"
+    steps:
+      - name: "Forward direction lemma"
+        description: "First prove the forward direction: if `f` is injective, then `List.map f` is injective. Use pattern matching on both lists and induction."
+      - name: "Forward lemma signature"
+        description: "`map_injective_mp (f : α → β) (hf : Function.Injective f) : Function.Injective (List.map f)`"
+        code_completions:
+          - name: "Signature"
+            find: "(\\n?)theorem map_injective_iff \\(f : α → β\\) :\\s*Function\\.Injective f ↔ Function\\.Injective \\(List\\.map f\\) := by\\s*sorry"
+            replace: "\n\ntheorem map_injective_mp (f : α → β) (hf : Function.Injective f) :\n    Function.Injective (List.map f) := by\n  sorry\n\ntheorem map_injective_iff (f : α → β) :\n    Function.Injective f ↔ Function.Injective (List.map f) := by\n  sorry"
+      - name: "Forward lemma proof"
+        description: "Match on both lists simultaneously. Empty cases are trivial. For `h1::t1, h2::t2`, use `simp` to extract equality of heads and tails, then apply injectivity of `f` to heads and recurse on tails."
+        code_completions:
+          - name: "Start proof"
+            find: "theorem map_injective_mp \\(f : α → β\\) \\(hf : Function\\.Injective f\\) :\\s*Function\\.Injective \\(List\\.map f\\) := by\\s*sorry"
+            replace: "theorem map_injective_mp (f : α → β) (hf : Function.Injective f) :\n    Function.Injective (List.map f) := by\n  intro xs ys hl\n  match xs, ys with\n  | [], [] => rfl\n  | [], _::_ => simp at hl\n  | _::_, [] => simp at hl\n  | h1::t1, h2::t2 => sorry"
+          - name: "Final proof"
+            find: "theorem map_injective_mp \\(f : α → β\\) \\(hf : Function\\.Injective f\\) :\\s*Function\\.Injective \\(List\\.map f\\) := by\\s*intro xs ys hl\\s*match xs, ys with\\s*\\| \\[\\], \\[\\] => rfl\\s*\\| \\[\\], _::_ => simp at hl\\s*\\| _::_, \\[\\] => simp at hl\\s*\\| h1::t1, h2::t2 => sorry"
+            replace: "theorem map_injective_mp (f : α → β) (hf : Function.Injective f) :\n    Function.Injective (List.map f) := by\n  intro xs ys hl\n  match xs, ys with\n  | [], [] => rfl\n  | [], _::_ => simp at hl\n  | _::_, [] => simp at hl\n  | h1::t1, h2::t2 =>  simp at hl\n                       rcases hl with ⟨fh12, hl⟩\n                       have h12 := hf fh12\n                       -- Recursive call on t1, t2 which are structurally smaller than xs, ys\n                       have hl := map_injective_mp _ hf hl\n                       rw [h12, hl]"
+
+  - force_find: "(?:theorem map_injective_mpr[\\s\\S]*?(?=\\ntheorem|\\n\\ntheorem|$))?theorem map_injective_iff[\\s\\S]*?(?=\\n\\n|\\n--|\\n#|$)"
+    steps:
+      - name: "Backward direction lemma"
+        description: "Now prove the backward direction: if `List.map f` is injective, then `f` is injective. Key insight: wrap elements in singleton lists."
+      - name: "Backward lemma signature"
+        description: "`map_injective_mpr (f : α → β) (hf : Function.Injective (List.map f)) : Function.Injective f`"
+        code_completions:
+          - name: "Signature"
+            find: "(\\n?)theorem map_injective_iff \\(f : α → β\\) :\\s*Function\\.Injective f ↔ Function\\.Injective \\(List\\.map f\\) := by\\s*sorry"
+            replace: "\n\ntheorem map_injective_mpr (f : α → β) (hf : Function.Injective (List.map f)) :\n    Function.Injective f := by\n  sorry\n\ntheorem map_injective_iff (f : α → β) :\n    Function.Injective f ↔ Function.Injective (List.map f) := by\n  sorry"
+      - name: "Backward lemma proof"
+        description: "Given `f a = f b`, observe that `List.map f [a] = [f a] = [f b] = List.map f [b]`. Since `List.map f` is injective, `[a] = [b]`, so `a = b`."
+        code_completions:
+          - name: "Final proof"
+            find: "theorem map_injective_mpr \\(f : α → β\\) \\(hf : Function\\.Injective \\(List\\.map f\\)\\) :\\s*Function\\.Injective f := by\\s*sorry"
+            replace: "theorem map_injective_mpr (f : α → β) (hf : Function.Injective (List.map f)) :\n    Function.Injective f := by\n  intro a b hab\n  -- Instantiate injectivity of map f by singleton lists [a] and [b]\n  have h : List.map f [a] = List.map f [b] := by simp [hab]\n  have h2 := hf h\n  simp at h2\n  exact h2"
+
+  - force_find: "theorem map_injective_iff \\(f : α → β\\) :\\s*Function\\.Injective f ↔ Function\\.Injective \\(List\\.map f\\) := by[\\s\\S]*?(?=\\n\\n|\\n--|\\n#|$)"
+    steps:
+      - name: "Combine with Iff.intro"
+        description: "Use `constructor` to split the iff, then apply each lemma to the corresponding direction."
+      - name: "Main theorem proof"
+        description: "Use `constructor` followed by `apply map_injective_mp` and `apply map_injective_mpr`."
+        code_completions:
+          - name: "Final proof"
+            find: "theorem map_injective_iff \\(f : α → β\\) :\\s*Function\\.Injective f ↔ Function\\.Injective \\(List\\.map f\\) := by\\s*sorry"
+            replace: "theorem map_injective_iff (f : α → β) :\n    Function.Injective f ↔ Function.Injective (List.map f) := by\n  constructor\n  · apply map_injective_mp\n  · apply map_injective_mpr"

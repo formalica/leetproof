@@ -10,7 +10,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Project Summary
 
-**LeetProof** is a competitive programming platform for the **Lean 4** programming language. Users prove theorems and verify code, similar to LeetCode but for formal verification.
+**LeetProof** is a collaborative platform for the **Lean 4** programming language. Users prove theorems and verify code, share solutions and hints with the community.
 
 ## Tech Stack
 

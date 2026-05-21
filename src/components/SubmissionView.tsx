@@ -82,6 +82,7 @@ export default function SubmissionView({
         content: sub.notes || "",
         is_public: false,
         tags: [],
+        version: sub.version,
       })
       .select("id")
       .single();
@@ -110,8 +111,7 @@ export default function SubmissionView({
 
   const handleLoadIntoEditor = () => {
     if (!window.confirm("Load this submission's code into the editor? Your current code will be replaced.")) return;
-    window.dispatchEvent(new CustomEvent("leetproof:load-code", { detail: { code: sub.code } }));
-    onBack();
+    window.dispatchEvent(new CustomEvent("leetproof:load-code", { detail: { code: sub.code, version: sub.version } }));
   };
 
   const statusBadgeClass =
@@ -146,7 +146,7 @@ export default function SubmissionView({
             <button
               onClick={handleLoadIntoEditor}
               className="vscode-menu-btn"
-              title="Load this code into the editor"
+              title={`Load code into the Editor (${sub.version || 'mathlib-v4.28.0'})`}
             >
               Load in Editor
             </button>

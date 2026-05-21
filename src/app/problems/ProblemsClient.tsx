@@ -24,9 +24,14 @@ export default function ProblemsClient() {
   // Read state from URL
   const q = searchParams.get("q") ?? "";
   const tagsParam = searchParams.get("tags") ?? "";
+  const excludeTagsParam = searchParams.get("excludeTags") ?? "";
   const selectedTags = useMemo(
     () => (tagsParam ? tagsParam.split(",").filter(Boolean) : []),
     [tagsParam]
+  );
+  const excludedTags = useMemo(
+    () => (excludeTagsParam ? excludeTagsParam.split(",").filter(Boolean) : []),
+    [excludeTagsParam]
   );
   const difficulty = (searchParams.get("difficulty") ?? "") as Difficulty | "";
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 15) || 15);
@@ -96,6 +101,7 @@ export default function ProblemsClient() {
       const vals: Record<string, string> = {
         q: overrides.q !== undefined ? String(overrides.q) : q,
         tags: overrides.tags !== undefined ? String(overrides.tags) : tagsParam,
+        excludeTags: overrides.excludeTags !== undefined ? String(overrides.excludeTags) : excludeTagsParam,
         difficulty:
           overrides.difficulty !== undefined
             ? String(overrides.difficulty)
@@ -115,6 +121,7 @@ export default function ProblemsClient() {
       };
       if (vals.q) params.set("q", vals.q);
       if (vals.tags) params.set("tags", vals.tags);
+      if (vals.excludeTags) params.set("excludeTags", vals.excludeTags);
       if (vals.difficulty) params.set("difficulty", vals.difficulty);
       params.set("limit", vals.limit);
       params.set("page", vals.page);
@@ -122,7 +129,7 @@ export default function ProblemsClient() {
       if (vals.sortOrder !== "asc") params.set("sortOrder", vals.sortOrder);
       return `/problems?${params.toString()}`;
     },
-    [q, tagsParam, difficulty, limit, page, sortBy, sortOrder]
+    [q, tagsParam, excludeTagsParam, difficulty, limit, page, sortBy, sortOrder]
   );
 
   // Fetch problems
@@ -156,12 +163,33 @@ export default function ProblemsClient() {
   const startItem = total === 0 ? 0 : from + 1;
   const endItem = Math.min(total, from + limit);
 
-  // Toggle tag (immediate)
+  // Toggle tag (triple-state: neutral → included → excluded → neutral)
   const toggleTag = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter((t) => t !== tag)
-      : [...selectedTags, tag];
-    router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    if (selectedTags.includes(tag)) {
+      // included → excluded
+      const newTags = selectedTags.filter((t) => t !== tag);
+      const newExcluded = [...excludedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), excludeTags: newExcluded.join(","), page: 1 }));
+    } else if (excludedTags.includes(tag)) {
+      // excluded → neutral
+      const newExcluded = excludedTags.filter((t) => t !== tag);
+      router.push(buildUrl({ excludeTags: newExcluded.join(","), page: 1 }));
+    } else {
+      // neutral → included
+      const newTags = [...selectedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    }
+  };
+
+  // Toggle tag (two-state: neutral ↔ included) for inline table tags
+  const toggleTableTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      const newTags = selectedTags.filter((t) => t !== tag);
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    } else {
+      const newTags = [...selectedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    }
   };
 
   // Sort handler
@@ -202,12 +230,16 @@ export default function ProblemsClient() {
   const perPageOptions = ["5", "10", "15", "20", "50"];
   const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
 
-  // Client-side completion filter
+  // Client-side completion and excluded tag filtering
   const filteredProblems = useMemo(() => {
-    if (!completionFilter) return problemList;
-    if (completionFilter === "completed") return problemList.filter((p) => solvedIds.has(p.id));
-    return problemList.filter((p) => !solvedIds.has(p.id));
-  }, [problemList, completionFilter, solvedIds]);
+    let result = problemList;
+    if (excludedTags.length > 0) {
+      result = result.filter((p) => !p.tags.some((t) => excludedTags.includes(t)));
+    }
+    if (!completionFilter) return result;
+    if (completionFilter === "completed") return result.filter((p) => solvedIds.has(p.id));
+    return result.filter((p) => !solvedIds.has(p.id));
+  }, [problemList, completionFilter, solvedIds, excludedTags]);
 
   return (
     <div className="mx-auto max-w-[90rem] px-4 pt-6 pb-4 sm:px-6 lg:px-8">
@@ -230,7 +262,7 @@ export default function ProblemsClient() {
                   Search
                 </button>
                 {/* Reset (show only when filters active) */}
-                {(q || tagsParam || difficulty || completionFilter) && (
+                {(q || tagsParam || excludeTagsParam || difficulty || completionFilter) && (
                   <Link
                     href="/problems"
                     onClick={() => setCompletionFilter("")}
@@ -422,7 +454,7 @@ export default function ProblemsClient() {
                             {problem.tags.map((t) => (
                               <button
                                 key={t}
-                                onClick={(e) => { e.stopPropagation(); toggleTag(t); }}
+                                onClick={(e) => { e.stopPropagation(); toggleTableTag(t); }}
                                 className={`cursor-pointer inline-flex items-center rounded-md px-2 py-0.5 text-xs transition ${
                                   selectedTags.includes(t)
                                     ? "bg-accent/15 text-accent"
@@ -531,14 +563,18 @@ export default function ProblemsClient() {
               <div className="flex flex-wrap gap-1.5">
                 {allTags.map((tag) => {
                   const isSelected = selectedTags.includes(tag);
+                  const isExcluded = excludedTags.includes(tag);
                   return (
                     <button
                       key={tag}
                       onClick={() => toggleTag(tag)}
+                      title={isSelected ? "Included" : isExcluded ? "Excluded" : ""}
                       className={`cursor-pointer rounded-md border px-2.5 py-1 text-sm transition-all duration-150 ${
                         isSelected
                           ? "border-accent/40 bg-accent/15 text-accent font-medium"
-                          : "border-border text-muted hover:bg-hover hover:text-foreground"
+                          : isExcluded
+                            ? "border-orange-500/40 bg-orange-500/15 text-orange-500 font-medium"
+                            : "border-border text-muted hover:bg-hover hover:text-foreground"
                       }`}
                     >
                       {tag}

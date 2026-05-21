@@ -211,6 +211,24 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
     fetchHintPacks();
   };
 
+  const handleToggleVisibility = async (packId: string) => {
+    if (!user) return;
+    const pack = hintPacks.find((p) => p.id === packId);
+    if (!pack || pack.user_id !== user.id) return;
+    const newPublic = !pack.is_public;
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("hint_packs")
+      .update({ is_public: newPublic })
+      .eq("id", packId)
+      .eq("user_id", user.id);
+    if (!error) {
+      setHintPacks((prev) =>
+        prev.map((p) => p.id === packId ? { ...p, is_public: newPublic } : p)
+      );
+    }
+  };
+
   const startEdit = (pack: HintPackWithMeta) => {
     setEditingPackId(pack.id);
     setYamlInput(pack.yaml_content);
@@ -281,7 +299,23 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
                 <span className="text-muted ml-1.5 text-xs">by {username}</span>
               </span>
 
-              {/* Edit button for owner */}
+              {/* Visibility toggle for owner */}
+              {isOwner && (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleVisibility(pack.id);
+                  }}
+                  className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium border cursor-pointer shrink-0 ${
+                    pack.is_public
+                      ? "badge-success"
+                      : "badge-warning"
+                  }`}
+                  title={pack.is_public ? "Click to make private" : "Click to make public"}
+                >
+                  {pack.is_public ? "Public" : "Private"}
+                </span>
+              )}
               {isOwner && (
                 <span
                   onClick={(e) => {
@@ -332,17 +366,31 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
 
       {/* Add / Edit hint pack form */}
       {!showAddForm ? (
-        <button
-          onClick={() => { setShowAddForm(true); setEditingPackId(null); setYamlInput(""); setSubmitError(null); }}
-          className="mt-3 w-full px-4 py-2.5 border border-dashed border-border rounded-md text-sm text-muted hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer"
-        >
-          + Add Hint Pack
-        </button>
+        user ? (
+          <button
+            onClick={() => { setShowAddForm(true); setEditingPackId(null); setYamlInput(""); setSubmitError(null); }}
+            className="mt-3 w-full px-4 py-2.5 border border-dashed border-border rounded-md text-sm text-muted hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer"
+          >
+            + Add Hint Pack
+          </button>
+        ) : (
+          <p className="mt-3 text-sm text-muted text-center py-2">Sign in to create hint packs</p>
+        )
       ) : (
         <div className="mt-3 border border-border rounded-md p-4">
-          <h3 className="text-sm font-medium text-foreground mb-2">
-            {editingPackId ? "Edit Hint Pack (YAML)" : "Add Hint Pack (YAML)"}
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-foreground">
+              {editingPackId ? "Edit Hint Pack (YAML)" : "Add Hint Pack (YAML)"}
+            </h3>
+            <a
+              href="https://github.com/nnarek/leetproof/blob/main/AGENTS.md#hints-system"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-accent hover:underline"
+            >
+              Format reference ↗
+            </a>
+          </div>
           <textarea
             value={yamlInput}
             onChange={(e) => setYamlInput(e.target.value)}

@@ -15,10 +15,9 @@ export default function HomePage() {
               Leet<span className="text-accent">Proof</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted sm:text-xl">
-              Competitive theorem proving in{" "}
-              <span className="font-semibold text-foreground">Lean 4</span>. Prove
-              complex theorems, verify code, and sharpen your formal
-              verification skills.
+              Prove theorems in{" "}
+              <span className="font-semibold text-foreground">Lean 4</span>, share
+              your solutions, and sharpen your formal verification skills.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
@@ -48,7 +47,7 @@ export default function HomePage() {
               What is LeetProof?
             </h2>
             <p className="mt-4 text-lg text-muted">
-              LeetProof is a competitive programming platform focused on{" "}
+              LeetProof is a collaborative platform focused on{" "}
               <strong className="text-foreground">formal verification</strong>{" "}
               using the Lean 4 programming language. Instead of writing
               algorithms, you write{" "}

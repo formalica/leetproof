@@ -35,6 +35,7 @@ export interface Submission {
   name: string | null;
   notes: string | null;
   errors: string | null;
+  version: string;
   submitted_at: string;
 }
 
@@ -47,6 +48,7 @@ export interface Solution {
   content: string;
   is_public: boolean;
   tags: string[];
+  version: string;
   created_at: string;
   updated_at: string;
 }
@@ -99,6 +101,7 @@ export interface HintPack {
   user_id: string;
   problem_id: string;
   yaml_content: string;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }
