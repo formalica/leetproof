@@ -362,6 +362,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
 
     try {
       const result = await verifyProof(editor, mainTheoremName, {
+        projectFolder,
         theoremType,
         allowedAxioms,
       });
