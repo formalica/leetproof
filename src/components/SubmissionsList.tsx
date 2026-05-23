@@ -34,10 +34,11 @@ export default function SubmissionsList({ problemId }: SubmissionsListProps) {
       const subs = data as Submission[];
       setSubmissions(subs);
 
-      // Auto-open submission from URL hash
-      const hash = window.location.hash.replace("#", "");
-      if (hash) {
-        const target = subs.find((s) => s.id === hash);
+      // Auto-open submission from URL query param (with hash fallback for legacy URLs)
+      const urlParams = new URLSearchParams(window.location.search);
+      const submissionId = urlParams.get("id") || window.location.hash.replace("#", "");
+      if (submissionId) {
+        const target = subs.find((s) => s.id === submissionId);
         if (target) setViewing(target);
       }
     }
@@ -48,20 +49,36 @@ export default function SubmissionsList({ problemId }: SubmissionsListProps) {
     fetchSubmissions();
   }, [fetchSubmissions]);
 
+  // Listen for new submission created from editor
   useEffect(() => {
-    const handleFocus = () => fetchSubmissions();
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
-  }, [fetchSubmissions]);
+    const handleNewSubmission = (e: Event) => {
+      const sub = (e as CustomEvent).detail as Submission;
+      if (sub && sub.problem_id === problemId) {
+        setSubmissions((prev) => [sub, ...prev]);
+        setViewing(sub);
+        const url = new URL(window.location.href);
+        url.searchParams.set("id", sub.id);
+        url.hash = '';
+        window.history.replaceState(null, "", url.toString());
+      }
+    };
+    window.addEventListener("leetproof:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetproof:submission-created", handleNewSubmission);
+  }, [problemId]);
 
   const openSubmission = (sub: Submission) => {
     setViewing(sub);
-    window.history.replaceState(null, "", `#${sub.id}`);
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", sub.id);
+    url.hash = '';
+    window.history.replaceState(null, "", url.toString());
   };
 
   const closeSubmission = () => {
     setViewing(null);
-    window.history.replaceState(null, "", window.location.pathname);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("id");
+    window.history.replaceState(null, "", url.toString());
   };
 
   if (viewing) {
@@ -85,15 +102,15 @@ export default function SubmissionsList({ problemId }: SubmissionsListProps) {
   }
 
   if (!user) {
-    return <p className="text-sm text-muted">Sign in to see your submissions.</p>;
+    return <p className="text-sm text-muted py-4">Sign in to see your submissions.</p>;
   }
 
   if (loading) {
-    return <p className="text-sm text-muted">Loading submissions...</p>;
+    return <p className="text-sm text-muted py-4">Loading submissions...</p>;
   }
 
   if (submissions.length === 0) {
-    return <p className="text-sm text-muted">No submissions yet. Submit a proof from the editor.</p>;
+    return <p className="text-sm text-muted py-4">No submissions yet. Submit a proof from the editor.</p>;
   }
 
   return (

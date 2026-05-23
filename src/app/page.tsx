@@ -12,13 +12,12 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
-              Leet<span className="text-accent">Lean</span>
+              Leet<span className="text-accent">Proof</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted sm:text-xl">
-              Competitive theorem proving in{" "}
-              <span className="font-semibold text-foreground">Lean 4</span>. Prove
-              complex theorems, verify code, and sharpen your formal
-              verification skills.
+              Prove theorems in{" "}
+              <span className="font-semibold text-foreground">Lean 4</span>, share
+              your solutions, and sharpen your formal verification skills.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
@@ -40,15 +39,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What is LeetLean */}
+      {/* What is LeetProof */}
       <section className="border-t border-border py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold text-foreground">
-              What is LeetLean?
+              What is LeetProof?
             </h2>
             <p className="mt-4 text-lg text-muted">
-              LeetLean is a competitive programming platform focused on{" "}
+              LeetProof is a collaborative platform focused on{" "}
               <strong className="text-foreground">formal verification</strong>{" "}
               using the Lean 4 programming language. Instead of writing
               algorithms, you write{" "}

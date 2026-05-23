@@ -16,10 +16,10 @@ export default function ThemeToggle() {
     setIsLight(next);
     if (next) {
       document.documentElement.setAttribute("data-theme", "light");
-      localStorage.setItem("leetlean-theme", "light");
+      localStorage.setItem("leetproof-theme", "light");
     } else {
       document.documentElement.removeAttribute("data-theme");
-      localStorage.removeItem("leetlean-theme");
+      localStorage.removeItem("leetproof-theme");
     }
   };
 

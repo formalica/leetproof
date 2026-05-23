@@ -1,4 +1,4 @@
-# Deploy LeetLean as a static site to GitHub Pages
+# Deploy LeetProof as a static site to GitHub Pages
 #
 # Required repository secrets (Settings → Secrets and variables → Actions):
 #   NEXT_PUBLIC_SUPABASE_URL       — Your Supabase project URL
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build static site
         env:
-          NEXT_PUBLIC_LEETLEAN_SERVERLESS: "true"
+          NEXT_PUBLIC_LEETPROOF_SERVERLESS: "true"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_LEAN4WEB_URL: ${{ secrets.NEXT_PUBLIC_LEAN4WEB_URL }}

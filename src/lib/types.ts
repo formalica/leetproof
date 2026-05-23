@@ -18,6 +18,8 @@ export interface Problem {
   description: string;
   starter_code: string;
   main_theorem_name: string | null;
+  theorem_type: string | null;
+  allowed_axioms: string[] | null;
   tags: string[];
   sort_order: number;
   created_at: string;
@@ -33,6 +35,7 @@ export interface Submission {
   name: string | null;
   notes: string | null;
   errors: string | null;
+  version: string;
   submitted_at: string;
 }
 
@@ -45,6 +48,7 @@ export interface Solution {
   content: string;
   is_public: boolean;
   tags: string[];
+  version: string;
   created_at: string;
   updated_at: string;
 }
@@ -65,4 +69,70 @@ export interface ProblemListItem {
   tags: string[];
   sort_order: number;
   user_status?: SubmissionStatus | null;
+}
+
+export interface SolutionComment {
+  id: string;
+  solution_id: string;
+  user_id: string;
+  parent_id: string | null;
+  replied_to_comment_id: string | null;
+  reply_to_user_id: string | null;
+  content: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommentWithMeta extends SolutionComment {
+  like_count: number;
+  user_has_liked: boolean;
+  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  reply_to_username: string | null;
+  replies: CommentWithMeta[];
+}
+
+// ============================================
+// Hint Packs
+// ============================================
+
+export interface HintPack {
+  id: string;
+  user_id: string;
+  problem_id: string;
+  yaml_content: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HintPackWithMeta extends HintPack {
+  like_count: number;
+  user_has_liked: boolean;
+  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  parsed?: ParsedHintPack;
+}
+
+// Parsed YAML structure
+export interface ParsedHintPack {
+  name?: string;
+  hints: ParsedHint[];
+}
+
+export interface ParsedHint {
+  name?: string;
+  force_find: string;
+  steps: ParsedHintStep[];
+}
+
+export interface ParsedHintStep {
+  name: string;
+  description?: string;
+  code_completions: HintCodeCompletion[];
+}
+
+export interface HintCodeCompletion {
+  name?: string;
+  find: string;
+  replace: string;
 }

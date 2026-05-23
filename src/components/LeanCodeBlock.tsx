@@ -1,92 +1,80 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+import hljs from "highlight.js/lib/core";
+// @ts-expect-error - no types available for highlightjs-lean
+import lean from "highlightjs-lean";
+
+hljs.registerLanguage("lean", lean);
 
 interface LeanCodeBlockProps {
   code: string;
+  /** When true, renders without the outer border container (used inside markdown) */
+  inline?: boolean;
 }
 
-/**
- * Renders Lean 4 code with syntax highlighting identical to lean4web.
- *
- * Uses Monaco's colorize() API with the lean4 TextMate grammar that
- * lean4monaco registers. Falls back to plain <pre> if Monaco isn't
- * available yet.
- */
-export default function LeanCodeBlock({ code }: LeanCodeBlockProps) {
-  const [html, setHtml] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+export default function LeanCodeBlock({ code, inline }: LeanCodeBlockProps) {
+  const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function colorize() {
-      try {
-        // Dynamic import — monaco-editor is already bundled for the editor
-        const monaco = await import("monaco-editor");
-
-        // Wait briefly for lean4monaco to register the grammar
-        // (it initializes async when the editor mounts)
-        let attempts = 0;
-        while (attempts < 20) {
-          const langs = monaco.languages.getLanguages();
-          if (langs.some((l) => l.id === "lean4")) break;
-          await new Promise((r) => setTimeout(r, 100));
-          attempts++;
-        }
-
-        if (cancelled) return;
-
-        const result = await monaco.editor.colorize(code, "lean4", { tabSize: 2 });
-        if (!cancelled) {
-          setHtml(result);
-        }
-      } catch {
-        // Monaco not available — keep fallback
-      }
+  const highlighted = useMemo(() => {
+    try {
+      return hljs.highlight(code, { language: "lean" }).value;
+    } catch {
+      return null;
     }
-
-    colorize();
-    return () => { cancelled = true; };
   }, [code]);
 
-  // Listen for theme changes to re-colorize
-  useEffect(() => {
-    if (html === null) return; // Not yet colorized
-
-    const observer = new MutationObserver(() => {
-      // Theme changed — re-colorize
-      (async () => {
-        try {
-          const monaco = await import("monaco-editor");
-          const result = await monaco.editor.colorize(code, "lean4", { tabSize: 2 });
-          setHtml(result);
-        } catch {
-          // ignore
-        }
-      })();
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // fallback for non-secure contexts
+      const ta = document.createElement("textarea");
+      ta.value = code;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     });
+  };
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
+  const content = (
+    <div
+      className="relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <button
+        onClick={handleCopy}
+        className={`absolute top-1 right-1 z-10 rounded bg-zinc-700 hover:bg-zinc-600 px-1.5 py-0.5 text-[10px] text-zinc-300 transition-opacity ${hovered || copied ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      >
+        {copied ? "Copied!" : "Copy"}
+      </button>
+      <pre className="lean-code-block m-0">
+        {highlighted ? (
+          <code className="language-lean" dangerouslySetInnerHTML={{ __html: highlighted }} />
+        ) : (
+          <code className="language-lean">{code}</code>
+        )}
+      </pre>
+    </div>
+  );
 
-    return () => observer.disconnect();
-  }, [code, html]);
-
-  if (html) {
-    return (
-      <div
-        ref={containerRef}
-        className="lean-code-block"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    );
+  if (inline) {
+    return content;
   }
 
-  // Fallback: plain text while Monaco loads
   return (
-    <pre className="lean-code-block">{code}</pre>
+    <div className="lean-code-wrapper rounded-md border border-border p-3 overflow-x-auto">
+      {content}
+    </div>
   );
 }

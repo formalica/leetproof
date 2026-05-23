@@ -24,9 +24,14 @@ export default function ProblemsClient() {
   // Read state from URL
   const q = searchParams.get("q") ?? "";
   const tagsParam = searchParams.get("tags") ?? "";
+  const excludeTagsParam = searchParams.get("excludeTags") ?? "";
   const selectedTags = useMemo(
     () => (tagsParam ? tagsParam.split(",").filter(Boolean) : []),
     [tagsParam]
+  );
+  const excludedTags = useMemo(
+    () => (excludeTagsParam ? excludeTagsParam.split(",").filter(Boolean) : []),
+    [excludeTagsParam]
   );
   const difficulty = (searchParams.get("difficulty") ?? "") as Difficulty | "";
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 15) || 15);
@@ -96,6 +101,7 @@ export default function ProblemsClient() {
       const vals: Record<string, string> = {
         q: overrides.q !== undefined ? String(overrides.q) : q,
         tags: overrides.tags !== undefined ? String(overrides.tags) : tagsParam,
+        excludeTags: overrides.excludeTags !== undefined ? String(overrides.excludeTags) : excludeTagsParam,
         difficulty:
           overrides.difficulty !== undefined
             ? String(overrides.difficulty)
@@ -115,6 +121,7 @@ export default function ProblemsClient() {
       };
       if (vals.q) params.set("q", vals.q);
       if (vals.tags) params.set("tags", vals.tags);
+      if (vals.excludeTags) params.set("excludeTags", vals.excludeTags);
       if (vals.difficulty) params.set("difficulty", vals.difficulty);
       params.set("limit", vals.limit);
       params.set("page", vals.page);
@@ -122,7 +129,7 @@ export default function ProblemsClient() {
       if (vals.sortOrder !== "asc") params.set("sortOrder", vals.sortOrder);
       return `/problems?${params.toString()}`;
     },
-    [q, tagsParam, difficulty, limit, page, sortBy, sortOrder]
+    [q, tagsParam, excludeTagsParam, difficulty, limit, page, sortBy, sortOrder]
   );
 
   // Fetch problems
@@ -156,12 +163,33 @@ export default function ProblemsClient() {
   const startItem = total === 0 ? 0 : from + 1;
   const endItem = Math.min(total, from + limit);
 
-  // Toggle tag (immediate)
+  // Toggle tag (triple-state: neutral → included → excluded → neutral)
   const toggleTag = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter((t) => t !== tag)
-      : [...selectedTags, tag];
-    router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    if (selectedTags.includes(tag)) {
+      // included → excluded
+      const newTags = selectedTags.filter((t) => t !== tag);
+      const newExcluded = [...excludedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), excludeTags: newExcluded.join(","), page: 1 }));
+    } else if (excludedTags.includes(tag)) {
+      // excluded → neutral
+      const newExcluded = excludedTags.filter((t) => t !== tag);
+      router.push(buildUrl({ excludeTags: newExcluded.join(","), page: 1 }));
+    } else {
+      // neutral → included
+      const newTags = [...selectedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    }
+  };
+
+  // Toggle tag (two-state: neutral ↔ included) for inline table tags
+  const toggleTableTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      const newTags = selectedTags.filter((t) => t !== tag);
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    } else {
+      const newTags = [...selectedTags, tag];
+      router.push(buildUrl({ tags: newTags.join(","), page: 1 }));
+    }
   };
 
   // Sort handler
@@ -202,26 +230,30 @@ export default function ProblemsClient() {
   const perPageOptions = ["5", "10", "15", "20", "50"];
   const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
 
-  // Client-side completion filter
+  // Client-side completion and excluded tag filtering
   const filteredProblems = useMemo(() => {
-    if (!completionFilter) return problemList;
-    if (completionFilter === "completed") return problemList.filter((p) => solvedIds.has(p.id));
-    return problemList.filter((p) => !solvedIds.has(p.id));
-  }, [problemList, completionFilter, solvedIds]);
+    let result = problemList;
+    if (excludedTags.length > 0) {
+      result = result.filter((p) => !p.tags.some((t) => excludedTags.includes(t)));
+    }
+    if (!completionFilter) return result;
+    if (completionFilter === "completed") return result.filter((p) => solvedIds.has(p.id));
+    return result.filter((p) => !solvedIds.has(p.id));
+  }, [problemList, completionFilter, solvedIds, excludedTags]);
 
   return (
     <div className="mx-auto max-w-[90rem] px-4 pt-6 pb-4 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-10">
-          <div className="min-w-0 flex-1">
-            {/* Filters row — scoped to table column width */}
-            <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="min-w-0 flex-1 lg:max-w-[60rem]"> {/* TABLE SIZE */}
+            {/* Filters row — right controls are pinned; search area is flexible */}
+            <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
               {/* Search */}
-              <form onSubmit={handleSearch} className="flex flex-1 min-w-0 items-center gap-2">
+              <form onSubmit={handleSearch} className="flex min-w-0 flex-1 items-center gap-2">
                 <input
                   value={formQ}
                   onChange={(e) => setFormQ(e.target.value)}
                   placeholder="Search by title..."
-                  className="flex-1 min-w-0 rounded-lg border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/50 transition"
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted transition focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
                 <button
                   type="submit"
@@ -230,148 +262,150 @@ export default function ProblemsClient() {
                   Search
                 </button>
                 {/* Reset (show only when filters active) */}
-                {(q || tagsParam || difficulty || completionFilter) && (
+                {(q || tagsParam || excludeTagsParam || difficulty || completionFilter) && (
                   <Link
                     href="/problems"
                     onClick={() => setCompletionFilter("")}
-                    className="rounded-lg border border-border px-3 py-2 text-sm text-muted transition hover:text-foreground hover:border-foreground/20"
+                    className="rounded-lg border border-border px-3 py-2 text-sm text-muted transition hover:border-foreground/20 hover:text-foreground"
                   >
                     Reset
                   </Link>
                 )}
               </form>
 
-              {/* Difficulty pills */}
-              <div className="flex items-center rounded-lg border border-border bg-surface p-0.5">
-                {DIFFICULTIES.map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => handleDifficulty(d)}
-                    className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all duration-150 ${
-                      difficulty === d
-                        ? "bg-accent text-white shadow-sm"
-                        : "text-muted hover:text-foreground"
-                    }`}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
-
-              {/* Completion filter pills */}
-              {user && (
+              <div className="flex flex-wrap items-center gap-3 lg:ml-auto lg:shrink-0 lg:flex-nowrap">
+                {/* Difficulty pills */}
                 <div className="flex items-center rounded-lg border border-border bg-surface p-0.5">
-                  <button
-                    onClick={() => setCompletionFilter(completionFilter === "completed" ? "" : "completed")}
-                    title="Show only completed problems"
-                    className={`cursor-pointer rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 flex items-center gap-1 ${
-                      completionFilter === "completed"
-                        ? "bg-accent text-white shadow-sm"
-                        : "text-muted hover:text-foreground"
-                    }`}
-                  >
-                    <svg className="h-3 w-3" viewBox="0 0 448 512" fill="currentColor">
-                      <path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setCompletionFilter(completionFilter === "not_completed" ? "" : "not_completed")}
-                    title="Show only unsolved problems"
-                    className={`cursor-pointer rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 flex items-center gap-1 ${
-                      completionFilter === "not_completed"
-                        ? "bg-accent text-white shadow-sm"
-                        : "text-muted hover:text-foreground"
-                    }`}
-                  >
-                    <svg className="h-3 w-3" viewBox="0 0 384 512" fill="currentColor">
-                      <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3l105.4 105.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256l105.3-105.4z" />
-                    </svg>
-                  </button>
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => handleDifficulty(d)}
+                      className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all duration-150 ${
+                        difficulty === d
+                          ? "bg-accent text-white shadow-sm"
+                          : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      {d}
+                    </button>
+                  ))}
                 </div>
-              )}
 
-              {/* Sort dropdown */}
-              <div ref={sortRef} className="relative">
-                <button
-                  onClick={() => setSortOpen(!sortOpen)}
-                  className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition hover:border-accent/50"
-                >
-                  <span className="text-muted">Sort:</span>
-                  <span className="font-medium">{currentSortLabel}</span>
-                  <svg
-                    className={`h-3.5 w-3.5 text-muted transition-transform duration-200 ${
-                      sortOrder === "desc" ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 15l7-7 7 7"
-                    />
-                  </svg>
-                </button>
-                {sortOpen && (
-                  <div className="absolute top-full left-0 z-50 mt-1 w-44 rounded-lg border border-border bg-surface shadow-xl overflow-hidden">
-                    {sortOptions.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => handleSort(opt.value)}
-                        className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition ${
-                          sortBy === opt.value
-                            ? "bg-accent/10 text-accent font-medium"
-                            : "text-foreground hover:bg-hover"
-                        }`}
-                      >
-                        {opt.label}
-                        {sortBy === opt.value && (
-                          <svg
-                            className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                              sortOrder === "desc" ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 15l7-7 7 7"
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
+                {/* Completion filter pills */}
+                {user && (
+                  <div className="flex items-center rounded-lg border border-border bg-surface p-0.5">
+                    <button
+                      onClick={() => setCompletionFilter(completionFilter === "completed" ? "" : "completed")}
+                      title="Show only completed problems"
+                      className={`flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 ${
+                        completionFilter === "completed"
+                          ? "bg-accent text-white shadow-sm"
+                          : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      <svg className="h-3 w-3" viewBox="0 0 448 512" fill="currentColor">
+                        <path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setCompletionFilter(completionFilter === "not_completed" ? "" : "not_completed")}
+                      title="Show only unsolved problems"
+                      className={`flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 ${
+                        completionFilter === "not_completed"
+                          ? "bg-accent text-white shadow-sm"
+                          : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      <svg className="h-3 w-3" viewBox="0 0 384 512" fill="currentColor">
+                        <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3l105.4 105.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256l105.3-105.4z" />
+                      </svg>
+                    </button>
                   </div>
                 )}
+
+                {/* Sort dropdown */}
+                <div ref={sortRef} className="relative">
+                  <button
+                    onClick={() => setSortOpen(!sortOpen)}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition hover:border-accent/50"
+                  >
+                    <span className="text-muted">Sort:</span>
+                    <span className="font-medium">{currentSortLabel}</span>
+                    <svg
+                      className={`h-3.5 w-3.5 text-muted transition-transform duration-200 ${
+                        sortOrder === "desc" ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 15l7-7 7 7"
+                      />
+                    </svg>
+                  </button>
+                  {sortOpen && (
+                    <div className="absolute top-full left-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-surface shadow-xl">
+                      {sortOptions.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => handleSort(opt.value)}
+                          className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition ${
+                            sortBy === opt.value
+                              ? "bg-accent/10 text-accent font-medium"
+                              : "text-foreground hover:bg-hover"
+                          }`}
+                        >
+                          {opt.label}
+                          {sortBy === opt.value && (
+                            <svg
+                              className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                                sortOrder === "desc" ? "rotate-180" : ""
+                              }`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 15l7-7 7 7"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Problems table */}
-            <div className="relative overflow-hidden rounded-xl border border-border">
+            <div className="relative w-full overflow-x-auto rounded-xl border border-border">
               {loading && problemList.length > 0 && (
                 <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-[1px]" />
               )}
-              <table className="w-full">
+              <table className="w-full table-fixed min-w-[600px]">
                 <thead>
                   <tr className="border-b border-border bg-surface">
-                    <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted w-10">
-
-                    </th>
-                    <th className="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    
+                    <th className="w-0 px-2.5 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted">
                       #
                     </th>
-                    <th className="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    <th className="w-2 px-1 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted">
+                    </th>
+                    <th className="w-[40%] px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Title
                     </th>
-                    <th className="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    <th className="w-9 px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Difficulty
                     </th>
-                    <th className="px-6 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    <th className="w-40 px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Tags
                     </th>
                   </tr>
@@ -393,17 +427,17 @@ export default function ProblemsClient() {
                         onClick={() => router.push(`/problems/${problem.slug}`)}
                         className="transition hover:bg-hover cursor-pointer"
                       >
-                        <td className="px-3 py-2.5 text-center">
+                        <td className="px-5 py-2.5 text-sm font-mono text-muted">
+                          {problem.sort_order}
+                        </td>
+                        <td className="px-1 py-2.5 text-center">
                           {solvedIds.has(problem.id) && (
                             <svg className="inline h-4 w-4 text-[var(--badge-success-text)]" viewBox="0 0 448 512" fill="currentColor">
                               <path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z" />
                             </svg>
                           )}
                         </td>
-                        <td className="px-6 py-2.5 text-sm font-mono text-muted">
-                          {problem.sort_order}
-                        </td>
-                        <td className="px-6 py-2.5">
+                        <td className="px-3 py-2.5 break-words">
                           <Link
                             href={`/problems/${problem.slug}`}
                             onClick={(e) => e.stopPropagation()}
@@ -412,15 +446,15 @@ export default function ProblemsClient() {
                             {problem.title}
                           </Link>
                         </td>
-                        <td className="px-6 py-2.5">
+                        <td className="px-2 py-2.5">
                           <DifficultyBadge difficulty={problem.difficulty} />
                         </td>
-                        <td className="px-6 py-2.5">
+                        <td className="px-2 py-2.5">
                           <div className="flex flex-wrap gap-1">
                             {problem.tags.map((t) => (
                               <button
                                 key={t}
-                                onClick={(e) => { e.stopPropagation(); toggleTag(t); }}
+                                onClick={(e) => { e.stopPropagation(); toggleTableTag(t); }}
                                 className={`cursor-pointer inline-flex items-center rounded-md px-2 py-0.5 text-xs transition ${
                                   selectedTags.includes(t)
                                     ? "bg-accent/15 text-accent"
@@ -529,14 +563,18 @@ export default function ProblemsClient() {
               <div className="flex flex-wrap gap-1.5">
                 {allTags.map((tag) => {
                   const isSelected = selectedTags.includes(tag);
+                  const isExcluded = excludedTags.includes(tag);
                   return (
                     <button
                       key={tag}
                       onClick={() => toggleTag(tag)}
+                      title={isSelected ? "Included" : isExcluded ? "Excluded" : ""}
                       className={`cursor-pointer rounded-md border px-2.5 py-1 text-sm transition-all duration-150 ${
                         isSelected
                           ? "border-accent/40 bg-accent/15 text-accent font-medium"
-                          : "border-border text-muted hover:bg-hover hover:text-foreground"
+                          : isExcluded
+                            ? "border-orange-500/40 bg-orange-500/15 text-orange-500 font-medium"
+                            : "border-border text-muted hover:bg-hover hover:text-foreground"
                       }`}
                     >
                       {tag}

@@ -1,4 +1,4 @@
-# LeetLean — Competitive Theorem Proving in Lean 4
+# LeetProof — Theorem Proving in Lean 4
 
 Sharpen your formal verification skills by proving theorems and verifying code in [Lean 4](https://lean-lang.org/). Think LeetCode, but for mathematical proofs.
 
@@ -24,8 +24,8 @@ Sharpen your formal verification skills by proving theorems and verifying code i
 
 ```bash
 # Clone and install
-git clone <your-repo-url> leetlean
-cd leetlean
+git clone <your-repo-url> leetproof
+cd leetproof
 npm install
 
 # Configure environment
@@ -92,8 +92,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Set these environment variables before building:
 
-- `NEXT_PUBLIC_LEETLEAN_SERVERLESS=true`
-- `NEXT_PUBLIC_BASE_PATH=/leetlean` for project pages on GitHub Pages, or leave it blank for a user/organization site
+- `NEXT_PUBLIC_LEETPROOF_SERVERLESS=true`
+- `NEXT_PUBLIC_BASE_PATH=/leetproof` for project pages on GitHub Pages, or leave it blank for a user/organization site
 - `NEXT_PUBLIC_LEAN4WEB_URL` pointing at your separate lean4web server
 
 Build the static export:

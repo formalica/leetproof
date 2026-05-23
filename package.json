@@ -1,11 +1,11 @@
 {
-  "name": "leetlean",
+  "name": "leetproof",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "NEXT_PUBLIC_LEETLEAN_SERVERLESS=true next build",
+    "build:static": "NEXT_PUBLIC_LEETPROOF_SERVERLESS=true next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx scripts/seed-problems.ts",
@@ -22,8 +22,11 @@
     "@types/path-browserify": "^1.0.3",
     "file-saver": "^2.0.5",
     "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "highlightjs-lean": "^1.2.0",
     "jotai": "^2.19.1",
     "jotai-location": "^0.6.2",
+    "js-yaml": "^4.1.1",
     "katex": "^0.16.45",
     "lean4monaco": "^1.1.13",
     "lz-string": "^1.5.0",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

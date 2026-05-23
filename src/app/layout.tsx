@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LeetLean — Competitive Theorem Proving",
+  title: "LeetProof — Theorem Proving in Lean 4",
   description:
-    "Sharpen your Lean 4 skills by proving theorems and verifying code. A competitive programming platform for formal verification.",
+    "Sharpen your Lean 4 skills by proving theorems and verifying code. Share solutions and hints with the community.",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('leetlean-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('leetproof-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`,
           }}
         />
       </head>

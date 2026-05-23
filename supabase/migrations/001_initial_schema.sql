@@ -1,5 +1,5 @@
 -- ============================================
--- LeetLean Database Schema
+-- LeetProof Database Schema
 -- Idempotent: safe to run multiple times
 -- ============================================
 

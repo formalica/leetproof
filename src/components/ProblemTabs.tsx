@@ -8,8 +8,9 @@ import DifficultyBadge from "@/components/DifficultyBadge";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import SubmissionsList from "@/components/SubmissionsList";
 import SolutionsTab from "@/components/SolutionsTab";
+import HintsTab from "@/components/HintsTab";
 
-type Tab = "description" | "solutions" | "submissions";
+type Tab = "description" | "solutions" | "submissions" | "hints";
 
 interface ProblemTabsProps {
   problem: Problem;
@@ -19,7 +20,7 @@ interface ProblemTabsProps {
 export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>(
-    (initialTab === "solutions" || initialTab === "submissions") ? initialTab : "description"
+    (initialTab === "solutions" || initialTab === "submissions" || initialTab === "hints") ? initialTab : "description"
   );
   const [solved, setSolved] = useState(false);
 
@@ -35,10 +36,21 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       .then(({ count }) => setSolved((count ?? 0) > 0));
   }, [user, problem.id]);
 
+  // Auto-switch to submissions tab when a new submission is created
+  useEffect(() => {
+    const handleNewSubmission = () => {
+      setActiveTab("submissions");
+      window.history.replaceState(null, "", `/problems/${problem.slug}/submissions`);
+    };
+    window.addEventListener("leetproof:submission-created", handleNewSubmission);
+    return () => window.removeEventListener("leetproof:submission-created", handleNewSubmission);
+  }, [problem.slug]);
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "description", label: "Description" },
     { id: "solutions", label: "Solutions" },
     { id: "submissions", label: "Submissions" },
+    { id: "hints", label: "Hints" },
   ];
 
   const handleTabChange = (tab: Tab) => {
@@ -51,21 +63,22 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
   };
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col rounded-xl border border-border bg-surface/30">
+    <div className="flex h-full min-h-0 w-full flex-col border border-border bg-surface/30">
       {/* Header: title + difficulty + tags */}
       <div className="shrink-0 px-6 pt-5 pb-3">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">{problem.title}</h1>
-          <DifficultyBadge difficulty={problem.difficulty} />
+          
           {solved && (
             <span className="inline-flex items-center gap-1 text-[var(--badge-success-text)]" title="Solved">
-              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+              <svg className="h-4 w-4" viewBox="0 0 448 512" fill="currentColor">
+                <path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z" clipRule="evenodd"></path>
               </svg>
             </span>
           )}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
+          <DifficultyBadge difficulty={problem.difficulty} />
           {problem.tags.map((tag) => (
             <span
               key={tag}
@@ -78,12 +91,12 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       </div>
 
       {/* Tab bar */}
-      <div className="shrink-0 flex border-b border-border px-6">
+      <div className="shrink-0 flex flex-wrap border-b border-border px-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+            className={`px-3 py-2 text-sm font-medium transition-colors relative ${
               activeTab === tab.id
                 ? "text-foreground"
                 : "text-muted hover:text-foreground"
@@ -110,6 +123,9 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
         )}
         {activeTab === "submissions" && (
           <SubmissionsList problemId={problem.id} />
+        )}
+        {activeTab === "hints" && (
+          <HintsTab problemId={problem.id} problemSlug={problem.slug} />
         )}
       </div>
     </div>

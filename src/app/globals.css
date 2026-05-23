@@ -8,7 +8,7 @@
   --surface: #252526;
   --sidebar: #2d2d30;
   --border: #3c3c3c;
-  --muted: #9a9a9a;
+  --muted: #afafaf;
   --accent: #6aadfe;
   --hover: #2a2d2e;
   --input: #3c3c3c;
@@ -18,6 +18,7 @@
   --danger: #f44747;
   --code-bg: #2d2d30;
   --card-bg: var(--surface);
+  --text-xs: 0.80rem;
 
   /* Badge colors */
   --badge-success-bg: rgba(34, 197, 94, 0.15);
@@ -44,6 +45,7 @@
   --badge: #e8e8e8;
   --code-bg: #f3f3f3;
   --card-bg: var(--surface);
+  --text-xs: 0.80rem;
 
   /* Badge colors — light theme (stronger for visibility on white bg) */
   --badge-success-bg: rgba(22, 163, 74, 0.15);
@@ -128,7 +130,6 @@ body {
 :root[data-theme="light"] .markdown-content strong {
   color: #1e1e1e !important;
 }
-
 :root[data-theme="light"] .markdown-content code {
   background: #ebebeb !important;
   color: #0066b8 !important;
@@ -136,7 +137,6 @@ body {
 
 :root[data-theme="light"] .markdown-content pre {
   background: #f3f3f3 !important;
-  border: 1px solid #d4d4d4 !important;
 }
 
 :root[data-theme="light"] .markdown-content pre code {
@@ -220,12 +220,137 @@ body {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Lean 4 syntax highlighting — container for Monaco colorize output */
+/* Lean 4 syntax highlighting — container */
 .lean-code-block {
   font-size: 0.8125rem;
   line-height: 1.6;
-  font-family: var(--font-mono), 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-family:  "Noto Color Emoji","JuliaMono","Cascadia Code","Menlo", "Monaco",  'Consolas', monospace,'Fira Code' , 'JetBrains Mono',var(--font-mono) ;
   white-space: pre-wrap;
-  color: var(--foreground);
+  word-wrap: break-word;
+  color: #d4d4d4;
   margin: 0;
+  background: transparent;
+}
+
+.lean-code-block code,
+.lean-code-block code span,
+.lean-code-block code * {
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+}
+
+/* highlight.js lean colors (VS Code dark theme) */
+.lean-code-block .hljs-keyword { color: #569cd6; }
+.lean-code-block .hljs-built_in { color: #569cd6; }
+.lean-code-block .hljs-type { color: #4ec9b0; }
+.lean-code-block .hljs-literal { color: #569cd6; }
+.lean-code-block .hljs-number { color: #b5cea8; }
+.lean-code-block .hljs-string { color: #ce9178; }
+.lean-code-block .hljs-comment { color: #6a9955; }
+.lean-code-block .hljs-doctag { color: #608b4e; }
+.lean-code-block .hljs-meta { color: #9cdcfe; }
+.lean-code-block .hljs-title { color: #dcdcaa; }
+.lean-code-block .hljs-symbol { color: #d4d4d4; }
+.lean-code-block .hljs-attr { color: #9cdcfe; }
+
+/* Light theme: code block container */
+:root[data-theme="light"] .lean-code-block {
+  color: #1e1e1e;
+}
+
+:root[data-theme="light"] .lean-code-block .hljs-keyword { color: #0000ff; }
+:root[data-theme="light"] .lean-code-block .hljs-built_in { color: #0000ff; }
+:root[data-theme="light"] .lean-code-block .hljs-type { color: #267f99; }
+:root[data-theme="light"] .lean-code-block .hljs-literal { color: #0000ff; }
+:root[data-theme="light"] .lean-code-block .hljs-number { color: #098658; }
+:root[data-theme="light"] .lean-code-block .hljs-string { color: #a31515; }
+:root[data-theme="light"] .lean-code-block .hljs-comment { color: #008000; }
+:root[data-theme="light"] .lean-code-block .hljs-doctag { color: #008000; }
+:root[data-theme="light"] .lean-code-block .hljs-meta { color: #001080; }
+:root[data-theme="light"] .lean-code-block .hljs-title { color: #795e26; }
+:root[data-theme="light"] .lean-code-block .hljs-symbol { color: #1e1e1e; }
+:root[data-theme="light"] .lean-code-block .hljs-attr { color: #001080; }
+
+/* Light theme: standalone code block wrapper (solutions/submissions/markdown) */
+.lean-code-wrapper {
+  background: #1e1e1e;
+}
+:root[data-theme="light"] .lean-code-wrapper {
+  background: #ebebeb !important;
+  border-color: #d4d4d4 !important;
+}
+
+/* Light theme: markdown pre blocks (non-lean) */
+:root[data-theme="light"] .markdown-content pre {
+  background: #ebebeb !important;
+  border-color: #d4d4d4 !important;
+}
+:root[data-theme="light"] .markdown-content pre code {
+  color: #1e1e1e !important;
+}
+
+/* Markdown rendered code blocks: single dark container, no extra borders */
+.markdown-content pre {
+  background: #1e1e1e !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+  position: relative;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.markdown-content pre code {
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #d4d4d4;
+  font-size: 0.8125rem;
+}
+
+/* When LeanCodeBlock is inside markdown, the wrapper provides the border —
+   strip border/padding/bg from the inner <pre> to avoid double border */
+.markdown-content pre.lean-code-block {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Reduce paragraph margins inside markdown for tighter text-to-code spacing */
+.markdown-content p {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* LeanCodeBlock inside markdown: reduce spacing */
+.markdown-content > .lean-code-wrapper,
+.markdown-content > .rounded-md {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Comment markdown: smaller text, inline with @username */
+.comment-markdown {
+  display: inline;
+}
+
+.comment-markdown .markdown-content {
+  display: inline;
+}
+
+.comment-markdown .markdown-content p {
+  display: inline;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.comment-markdown .markdown-content > :first-child {
+  display: inline;
 }
