@@ -402,7 +402,7 @@ export default function ProblemsClient() {
                     <th className="w-auto px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Title
                     </th>
-                    <th className="w-20 px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    <th className="w-23 px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Difficulty
                     </th>
                     <th className="w-auto px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
