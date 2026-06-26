@@ -9,7 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [showSignIn, setShowSignIn] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -85,12 +85,6 @@ export default function Navbar() {
                     )}
                   </span>
                 </Link>
-                <button
-                  onClick={signOut}
-                  className="rounded-md bg-hover px-3 py-1.5 text-sm text-muted transition hover:text-foreground"
-                >
-                  Sign Out
-                </button>
               </div>
             ) : (
               <>

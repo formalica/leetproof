@@ -368,6 +368,11 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
+
   if (loading) {
     return <p className="text-sm text-muted"></p>;
   }
@@ -425,6 +430,12 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
                       className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border disabled:opacity-50"
                     >
                       {downloading ? "Preparing..." : "Download my data"}
+                    </button>
+                    <button
+                      onClick={handleSignOut}
+                      className="rounded-md bg-hover px-3 py-1.5 text-sm text-muted transition hover:bg-border hover:text-foreground"
+                    >
+                      Sign Out
                     </button>
                     <button
                       onClick={handleDeleteAccount}
