@@ -3,14 +3,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/lib/supabase/client";
-import type { CommentWithMeta } from "@/lib/types";
+import type { CommentWithMeta, ProfileSummary, SolutionComment } from "@/lib/types";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import { getProfileDisplayName } from "@/lib/profile";
 
 interface CommentsSectionProps {
   solutionId: string;
 }
 
 const REPLIES_INITIAL = 3;
+
+interface CommentLikeRow {
+  comment_id: string;
+  user_id: string;
+}
 
 function timeAgo(dateStr: string): string {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -51,23 +58,27 @@ export default function CommentsSection({ solutionId }: CommentsSectionProps) {
       return;
     }
 
+    const commentRows = commentsData as SolutionComment[];
+
     // Fetch profiles
-    const userIds = [...new Set(commentsData.map((c: any) => c.user_id))];
-    const replyToIds = commentsData.map((c: any) => c.reply_to_user_id).filter(Boolean);
+    const userIds = [...new Set(commentRows.map((comment) => comment.user_id))];
+    const replyToIds = commentRows
+      .map((comment) => comment.reply_to_user_id)
+      .filter((id): id is string => Boolean(id));
     const allUserIds = [...new Set([...userIds, ...replyToIds])];
 
     const { data: profilesData } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, email")
+      .select("id, username, full_name, avatar_url, email, auth_email")
       .in("id", allUserIds);
 
-    const profilesMap: Record<string, { full_name: string | null; avatar_url: string | null; email: string | null }> = {};
-    for (const p of profilesData || []) {
-      profilesMap[p.id] = { full_name: p.full_name, avatar_url: p.avatar_url, email: p.email };
+    const profilesMap: Record<string, ProfileSummary> = {};
+    for (const p of (profilesData || []) as ProfileSummary[]) {
+      if (p.id) profilesMap[p.id] = p;
     }
 
     // Fetch likes
-    const commentIds = commentsData.map((c: any) => c.id);
+    const commentIds = commentRows.map((comment) => comment.id);
     const { data: likesData } = await supabase
       .from("comment_likes")
       .select("comment_id, user_id")
@@ -75,7 +86,7 @@ export default function CommentsSection({ solutionId }: CommentsSectionProps) {
 
     const likeCounts: Record<string, number> = {};
     const userLikes = new Set<string>();
-    for (const like of likesData || []) {
+    for (const like of (likesData || []) as CommentLikeRow[]) {
       likeCounts[like.comment_id] = (likeCounts[like.comment_id] || 0) + 1;
       if (user && like.user_id === user.id) {
         userLikes.add(like.comment_id);
@@ -83,14 +94,14 @@ export default function CommentsSection({ solutionId }: CommentsSectionProps) {
     }
 
     // Build tree
-    const enriched: CommentWithMeta[] = commentsData.map((c: any) => {
+    const enriched: CommentWithMeta[] = commentRows.map((c) => {
       const replyToProfile = c.reply_to_user_id ? profilesMap[c.reply_to_user_id] : null;
       return {
         ...c,
         like_count: likeCounts[c.id] || 0,
         user_has_liked: userLikes.has(c.id),
-        profiles: profilesMap[c.user_id] || { full_name: null, avatar_url: null, email: null },
-        reply_to_username: replyToProfile?.email?.split("@")[0] || null,
+        profiles: profilesMap[c.user_id] || { id: c.user_id, username: null, full_name: null, avatar_url: null, email: null, auth_email: null },
+        reply_to_username: replyToProfile ? getProfileDisplayName(replyToProfile) : null,
         replies: [],
       };
     });
@@ -240,7 +251,7 @@ export default function CommentsSection({ solutionId }: CommentsSectionProps) {
   const isDeleted = (comment: CommentWithMeta) => comment.content === "[deleted]";
 
   const renderComment = (comment: CommentWithMeta, isReply = false, parentId?: string) => {
-    const username = comment.profiles.email?.split("@")[0] || "anonymous";
+    const username = getProfileDisplayName(comment.profiles);
     const isCommentOwner = user?.id === comment.user_id;
     const deleted = isDeleted(comment);
 
@@ -251,13 +262,7 @@ export default function CommentsSection({ solutionId }: CommentsSectionProps) {
           <div className="flex items-center gap-2">
             {!deleted && (
               <>
-                {comment.profiles.avatar_url ? (
-                  <img src={comment.profiles.avatar_url} alt="" className="h-5 w-5 rounded-full" referrerPolicy="no-referrer" />
-                ) : (
-                  <div className="h-5 w-5 rounded-full bg-badge border border-border flex items-center justify-center">
-                    <span className="text-[9px] text-muted">{username[0]?.toUpperCase()}</span>
-                  </div>
-                )}
+                <ProfileAvatar profile={comment.profiles} size="xs" />
                 <span className="text-xs font-medium text-foreground">{username}</span>
               </>
             )}

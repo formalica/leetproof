@@ -3,11 +3,22 @@ export type SubmissionStatus = "pending" | "accepted" | "wrong";
 
 export interface Profile {
   id: string;
+  username: string | null;
   email: string | null;
+  auth_email: string | null;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProfileSummary {
+  id?: string;
+  username?: string | null;
+  email: string | null;
+  auth_email?: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
 }
 
 export interface Problem {
@@ -56,7 +67,7 @@ export interface Solution {
 export interface SolutionWithMeta extends Solution {
   like_count: number;
   user_has_liked: boolean;
-  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  profiles: ProfileSummary;
   submissions: { code: string; status: SubmissionStatus };
 }
 
@@ -87,7 +98,7 @@ export interface SolutionComment {
 export interface CommentWithMeta extends SolutionComment {
   like_count: number;
   user_has_liked: boolean;
-  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  profiles: ProfileSummary;
   reply_to_username: string | null;
   replies: CommentWithMeta[];
 }
@@ -109,7 +120,7 @@ export interface HintPack {
 export interface HintPackWithMeta extends HintPack {
   like_count: number;
   user_has_liked: boolean;
-  profiles: { full_name: string | null; avatar_url: string | null; email: string | null };
+  profiles: ProfileSummary;
   parsed?: ParsedHintPack;
 }
 
