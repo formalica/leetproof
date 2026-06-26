@@ -5,11 +5,15 @@ import { createClient } from "@/lib/supabase/client";
 import type { Difficulty, Profile } from "@/lib/types";
 import {
   emptyDifficultyStats,
+  getGeneratedAvatarBackground,
+  getProfileDisplayName,
+  getProfileInitials,
   getPublicEmail,
   isValidUsername,
   normalizeUsername,
   type DifficultyStat,
 } from "@/lib/profile";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 interface UserProfileClientProps {
@@ -41,27 +45,9 @@ const difficultyBadgeClasses: Record<Difficulty, string> = {
   hard: "difficulty-hard",
 };
 
-const avatarColorPrefix = "color:";
-
 function normalizeStats(rows: DifficultyStat[]) {
   const byDifficulty = new Map(rows.map((row) => [row.difficulty, row]));
   return emptyDifficultyStats().map((row) => byDifficulty.get(row.difficulty) ?? row);
-}
-
-function colorForName(name: string) {
-  let hash = 0;
-  for (let index = 0; index < name.length; index += 1) {
-    hash = (hash * 31 + name.charCodeAt(index)) >>> 0;
-  }
-  return `hsl(${hash % 360}, 60%, 45%)`;
-}
-
-function parseStoredColor(value: string) {
-  if (!value.startsWith(avatarColorPrefix)) return null;
-  const color = value.slice(avatarColorPrefix.length).trim();
-  if (/^#[0-9a-fA-F]{3,8}$/.test(color)) return color;
-  if (/^(rgb|hsl)a?\(/i.test(color)) return color;
-  return null;
 }
 
 function UserPageAvatar({
@@ -73,17 +59,15 @@ function UserPageAvatar({
   avatarUrl: string | null | undefined;
   size?: number;
 }) {
-  const initial = (name ?? "?").trim().charAt(0).toUpperCase() || "?";
+  const displayName = name ?? "anonymous";
   const px = `${size}px`;
-  const storedColor = avatarUrl ? parseStoredColor(avatarUrl) : null;
-  const isRealImage = avatarUrl && !avatarUrl.startsWith(avatarColorPrefix);
 
-  if (isRealImage) {
+  if (avatarUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={avatarUrl}
-        alt={name ?? "avatar"}
+        alt={displayName}
         style={{ width: px, height: px }}
         className="rounded-full border border-border object-cover"
         referrerPolicy="no-referrer"
@@ -96,12 +80,14 @@ function UserPageAvatar({
       style={{
         width: px,
         height: px,
-        backgroundColor: storedColor ?? colorForName(name ?? "?"),
+        background: getGeneratedAvatarBackground(displayName),
         fontSize: size * 0.45,
       }}
-      className="flex items-center justify-center rounded-full border border-border font-semibold text-white"
+      className="flex items-center justify-center rounded-full border border-border font-semibold text-white shadow-inner"
+      aria-label={displayName}
+      role="img"
     >
-      {initial}
+      {getProfileInitials(displayName)}
     </div>
   );
 }
@@ -150,12 +136,14 @@ function DifficultyBarChart({ stats }: { stats: DifficultyStat[] }) {
 }
 
 export default function UserProfileClient({ userId }: UserProfileClientProps) {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<EditableProfile | null>(null);
   const [stats, setStats] = useState<DifficultyStat[]>(emptyDifficultyStats());
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [status, setStatus] = useState<{ type: "error" | "success"; text: string } | null>(null);
 
   const [username, setUsername] = useState("");
@@ -299,6 +287,87 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
     setStatus(null);
   };
 
+  const handleDownloadArchive = async () => {
+    if (!profile || !isOwner) return;
+
+    setDownloading(true);
+    setStatus(null);
+
+    try {
+      const supabase = createClient();
+      const [submissions, solutions, hintPacks, problems] = await Promise.all([
+        supabase.from("submissions").select("*").eq("user_id", profile.id),
+        supabase.from("solutions").select("*").eq("user_id", profile.id),
+        supabase.from("hint_packs").select("*").eq("user_id", profile.id),
+        supabase.from("problems").select("id, slug"),
+      ]);
+
+      if (submissions.error) throw submissions.error;
+      if (solutions.error) throw solutions.error;
+      if (hintPacks.error) throw hintPacks.error;
+      if (problems.error) throw problems.error;
+
+      const slugById: Record<string, string> = {};
+      for (const problem of problems.data ?? []) {
+        slugById[problem.id] = problem.slug;
+      }
+
+      const withSlug = <T extends { problem_id: string }>(rows: T[] | null) =>
+        (rows ?? []).map((row) => ({ ...row, problem_slug: slugById[row.problem_id] ?? null }));
+
+      const { default: JSZip } = await import("jszip");
+      const zip = new JSZip();
+      zip.file("profile.json", JSON.stringify(profile, null, 2));
+      zip.file("submissions.json", JSON.stringify(withSlug(submissions.data), null, 2));
+      zip.file("solutions.json", JSON.stringify(withSlug(solutions.data), null, 2));
+      zip.file("hint_packs.json", JSON.stringify(withSlug(hintPacks.data), null, 2));
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `leetproof-${profile.username ?? profile.id}.zip`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setStatus({ type: "error", text: error instanceof Error ? error.message : "Failed to build archive." });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!profile || !isOwner) return;
+
+    const confirmation = window.prompt(
+      `This permanently deletes your account, submissions, solutions, hint packs, and comments. Type your username (${profile.username}) to confirm:`
+    );
+
+    if (confirmation === null) return;
+
+    if (confirmation.trim().toLowerCase() !== (profile.username ?? "").toLowerCase()) {
+      setStatus({ type: "error", text: "Username did not match. Account not deleted." });
+      return;
+    }
+
+    setSaving(true);
+    setStatus(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.rpc("delete_my_account");
+      if (error) throw error;
+
+      await signOut();
+      router.push("/");
+    } catch (error) {
+      setStatus({ type: "error", text: error instanceof Error ? error.message : "Failed to delete account." });
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return <p className="text-sm text-muted"></p>;
   }
@@ -308,7 +377,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
   }
 
   const displayEmail = getPublicEmail(profile.email);
-  const avatarName = profile.username ?? profile.full_name ?? profile.email;
+  const avatarName = getProfileDisplayName(profile);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -349,6 +418,20 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
                       className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition hover:bg-accent/90"
                     >
                       Edit profile
+                    </button>
+                    <button
+                      onClick={handleDownloadArchive}
+                      disabled={downloading}
+                      className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border disabled:opacity-50"
+                    >
+                      {downloading ? "Preparing..." : "Download my data"}
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={saving}
+                      className="rounded-md border border-[var(--danger)]/40 bg-[var(--danger)]/10 px-3 py-1.5 text-sm font-medium text-[var(--danger)] transition hover:bg-[var(--danger)]/20 disabled:opacity-50"
+                    >
+                      Delete account
                     </button>
                   </div>
                 )}
