@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { SolutionWithMeta } from "@/lib/types";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import CommentsSection from "@/components/CommentsSection";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import { getProfileDisplayName } from "@/lib/profile";
 
 const LeanCodeBlock = dynamic(() => import("@/components/LeanCodeBlock"), { ssr: false });
 
@@ -22,7 +24,7 @@ export default function SolutionView({ solution: sol, onBack, onLike, onUpdated 
   const [copied, setCopied] = useState(false);
   const [isPublic, setIsPublic] = useState(sol.is_public);
   const isOwner = user?.id === sol.user_id;
-  const username = sol.profiles.email?.split("@")[0] || "anonymous";
+  const username = getProfileDisplayName(sol.profiles);
 
   // Local display state (for immediate UI updates after save)
   const [displayTitle, setDisplayTitle] = useState(sol.title || "");
@@ -230,13 +232,7 @@ export default function SolutionView({ solution: sol, onBack, onLike, onUpdated 
 
       {/* Author + meta */}
       <div className="flex items-center gap-2">
-        {sol.profiles.avatar_url ? (
-          <img src={sol.profiles.avatar_url} alt="" className="h-6 w-6 rounded-full" referrerPolicy="no-referrer" />
-        ) : (
-          <div className="h-6 w-6 rounded-full bg-badge border border-border flex items-center justify-center">
-            <span className="text-[10px] text-muted">{username[0]?.toUpperCase()}</span>
-          </div>
-        )}
+        <ProfileAvatar profile={sol.profiles} size="sm" />
         <span className="text-sm text-muted">
           {username}
         </span>

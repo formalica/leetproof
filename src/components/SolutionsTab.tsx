@@ -3,12 +3,25 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/lib/supabase/client";
-import type { SolutionWithMeta } from "@/lib/types";
+import type { ProfileSummary, Solution, SolutionWithMeta, SubmissionStatus } from "@/lib/types";
 import SolutionView from "@/components/SolutionView";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import { getProfileDisplayName } from "@/lib/profile";
 
 interface SolutionsTabProps {
   problemId: string;
   problemSlug: string;
+}
+
+interface SubmissionSummaryRow {
+  id: string;
+  code: string;
+  status: SubmissionStatus;
+}
+
+interface SolutionLikeRow {
+  solution_id: string;
+  user_id: string;
 }
 
 export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabProps) {
@@ -56,10 +69,10 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       }
 
       // Filter out solutions with excluded tags (client-side)
-      let filtered = solutionsData || [];
+      let filtered = (solutionsData || []) as Solution[];
       if (excludedTags.length > 0) {
         filtered = filtered.filter(
-          (s: any) => !s.tags?.some((t: string) => excludedTags.includes(t))
+          (solution) => !solution.tags?.some((tag) => excludedTags.includes(tag))
         );
       }
 
@@ -71,29 +84,29 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       }
 
       // Fetch profiles for all solution authors
-      const userIds = [...new Set(filtered.map((s: any) => s.user_id))];
+      const userIds = [...new Set(filtered.map((solution) => solution.user_id))];
       const { data: profilesData } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email")
+        .select("id, username, full_name, avatar_url, email, auth_email")
         .in("id", userIds);
-      const profilesMap: Record<string, { full_name: string | null; avatar_url: string | null; email: string | null }> = {};
-      for (const p of profilesData || []) {
-        profilesMap[p.id] = { full_name: p.full_name, avatar_url: p.avatar_url, email: p.email };
+      const profilesMap: Record<string, ProfileSummary> = {};
+      for (const p of (profilesData || []) as ProfileSummary[]) {
+        if (p.id) profilesMap[p.id] = p;
       }
 
       // Fetch submission code for each solution
-      const submissionIds = [...new Set(filtered.map((s: any) => s.submission_id))];
+      const submissionIds = [...new Set(filtered.map((solution) => solution.submission_id))];
       const { data: submissionsData } = await supabase
         .from("submissions")
         .select("id, code, status")
         .in("id", submissionIds);
-      const submissionsMap: Record<string, { code: string; status: string }> = {};
-      for (const s of submissionsData || []) {
+      const submissionsMap: Record<string, { code: string; status: SubmissionStatus }> = {};
+      for (const s of (submissionsData || []) as SubmissionSummaryRow[]) {
         submissionsMap[s.id] = { code: s.code, status: s.status };
       }
 
       // Fetch like counts
-      const solutionIds = filtered.map((s: any) => s.id);
+      const solutionIds = filtered.map((solution) => solution.id);
       const { data: likesData } = await supabase
         .from("solution_likes")
         .select("solution_id, user_id")
@@ -101,18 +114,18 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
 
       const likeCounts: Record<string, number> = {};
       const userLikes = new Set<string>();
-      for (const like of likesData || []) {
+      for (const like of (likesData || []) as SolutionLikeRow[]) {
         likeCounts[like.solution_id] = (likeCounts[like.solution_id] || 0) + 1;
         if (user && like.user_id === user.id) {
           userLikes.add(like.solution_id);
         }
       }
 
-      const enriched: SolutionWithMeta[] = filtered.map((s: any) => ({
+      const enriched: SolutionWithMeta[] = filtered.map((s) => ({
         ...s,
         like_count: likeCounts[s.id] || 0,
         user_has_liked: userLikes.has(s.id),
-        profiles: profilesMap[s.user_id] || { full_name: null, avatar_url: null },
+        profiles: profilesMap[s.user_id] || { id: s.user_id, username: null, full_name: null, avatar_url: null, email: null, auth_email: null },
         submissions: submissionsMap[s.submission_id] || { code: "", status: "pending" },
       }));
 
@@ -132,8 +145,8 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
 
       // Collect all tags (from unfiltered data for stable tag list)
       const tagSet = new Set<string>();
-      for (const s of (solutionsData || [])) {
-        for (const t of (s as any).tags || []) tagSet.add(t);
+      for (const solution of (solutionsData || []) as Solution[]) {
+        for (const tag of solution.tags || []) tagSet.add(tag);
       }
       setAllTags(Array.from(tagSet).sort());
     } catch (err) {
@@ -281,7 +294,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
       ) : (
         <div>
           {solutions.map((sol) => {
-            const username = sol.profiles.email?.split("@")[0] || "anonymous";
+            const username = getProfileDisplayName(sol.profiles);
             return (
               <button
                 key={sol.id}
@@ -289,18 +302,7 @@ export default function SolutionsTab({ problemId, problemSlug }: SolutionsTabPro
                 className="w-full text-left px-3 py-2.5 transition-colors hover:bg-hover cursor-pointer flex items-start gap-2.5"
               >
                 {/* Avatar */}
-                {sol.profiles.avatar_url ? (
-                  <img
-                    src={sol.profiles.avatar_url}
-                    alt=""
-                    className="h-8 w-8 rounded-full shrink-0 mt-0.5"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-badge border border-border flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-xs text-muted">{username[0]?.toUpperCase()}</span>
-                  </div>
-                )}
+                <ProfileAvatar profile={sol.profiles} size="md" className="mt-0.5" />
                 {/* Content */}
                 <div className="min-w-0 flex-1">
                   {/* Row 1: username + visibility badge ... upvote (top-right) */}

@@ -3,13 +3,20 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/lib/supabase/client";
-import type { HintPackWithMeta, ParsedHint, ParsedHintStep } from "@/lib/types";
+import type { HintPack, HintPackWithMeta, ParsedHint, ParsedHintStep, ProfileSummary } from "@/lib/types";
 import { parseHintPackYaml, applyStep, forceApplyStep, getStepStatuses, getAllCompletions } from "@/lib/hints";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import { getProfileDisplayName } from "@/lib/profile";
 
 interface HintsTabProps {
   problemId: string;
   problemSlug: string;
+}
+
+interface HintPackLikeRow {
+  hint_pack_id: string;
+  user_id: string;
 }
 
 export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
@@ -43,37 +50,39 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
         return;
       }
 
+      const packs = packsData as HintPack[];
+
       // Fetch profiles
-      const userIds = [...new Set(packsData.map((p: any) => p.user_id))];
+      const userIds = [...new Set(packs.map((pack) => pack.user_id))];
       const { data: profilesData } = userIds.length > 0
-        ? await supabase.from("profiles").select("id, full_name, avatar_url, email").in("id", userIds)
+        ? await supabase.from("profiles").select("id, username, full_name, avatar_url, email, auth_email").in("id", userIds)
         : { data: [] };
-      const profilesMap: Record<string, { full_name: string | null; avatar_url: string | null; email: string | null }> = {};
-      for (const p of profilesData || []) {
-        profilesMap[p.id] = { full_name: p.full_name, avatar_url: p.avatar_url, email: p.email };
+      const profilesMap: Record<string, ProfileSummary> = {};
+      for (const p of (profilesData || []) as ProfileSummary[]) {
+        if (p.id) profilesMap[p.id] = p;
       }
 
       // Fetch likes
-      const packIds = packsData.map((p: any) => p.id);
+      const packIds = packs.map((pack) => pack.id);
       const { data: likesData } = packIds.length > 0
         ? await supabase.from("hint_pack_likes").select("hint_pack_id, user_id").in("hint_pack_id", packIds)
         : { data: [] };
 
       const likeCounts: Record<string, number> = {};
       const userLikes = new Set<string>();
-      for (const like of likesData || []) {
+      for (const like of (likesData || []) as HintPackLikeRow[]) {
         likeCounts[like.hint_pack_id] = (likeCounts[like.hint_pack_id] || 0) + 1;
         if (user && like.user_id === user.id) {
           userLikes.add(like.hint_pack_id);
         }
       }
 
-      const enriched: HintPackWithMeta[] = packsData.map((p: any) => ({
+      const enriched: HintPackWithMeta[] = packs.map((p) => ({
         ...p,
         like_count: likeCounts[p.id] || 0,
         user_has_liked: userLikes.has(p.id),
-        profiles: profilesMap[p.user_id] || { full_name: null, avatar_url: null, email: null },
-        parsed: parseHintPackYaml(p.yaml_content),
+        profiles: profilesMap[p.user_id] || { id: p.user_id, username: null, full_name: null, avatar_url: null, email: null, auth_email: null },
+        parsed: parseHintPackYaml(p.yaml_content) ?? undefined,
       }));
 
       // Sort by likes descending
@@ -258,7 +267,7 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
 
       {hintPacks.map((pack) => {
         const isExpanded = expandedPackId === pack.id;
-        const username = pack.profiles.email?.split("@")[0] || "anonymous";
+        const username = getProfileDisplayName(pack.profiles);
         const packName = pack.parsed?.name || `Hint Pack by ${username}`;
         const isOwner = user?.id === pack.user_id;
 
@@ -281,18 +290,7 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
               </svg>
 
               {/* Avatar */}
-              {pack.profiles.avatar_url ? (
-                <img
-                  src={pack.profiles.avatar_url}
-                  alt=""
-                  className="h-6 w-6 rounded-full shrink-0"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="h-6 w-6 rounded-full bg-badge border border-border flex items-center justify-center shrink-0">
-                  <span className="text-[10px] text-muted">{username[0]?.toUpperCase()}</span>
-                </div>
-              )}
+              <ProfileAvatar profile={pack.profiles} size="sm" />
 
               <span className="text-sm text-foreground flex-1 truncate">
                 <span className="font-medium">{packName}</span>
