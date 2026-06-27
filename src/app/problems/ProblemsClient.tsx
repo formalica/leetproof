@@ -297,7 +297,7 @@ export default function ProblemsClient() {
                     <button
                       onClick={() => setCompletionFilter(completionFilter === "completed" ? "" : "completed")}
                       title="Show only completed problems"
-                      className={`flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 ${
+                      className={`flex cursor-pointer items-center gap-1 rounded-md px-3 py-2.5 text-xs font-medium transition-all duration-150 ${
                         completionFilter === "completed"
                           ? "bg-accent text-white shadow-sm"
                           : "text-muted hover:text-foreground"
@@ -310,7 +310,7 @@ export default function ProblemsClient() {
                     <button
                       onClick={() => setCompletionFilter(completionFilter === "not_completed" ? "" : "not_completed")}
                       title="Show only unsolved problems"
-                      className={`flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-150 ${
+                      className={`flex cursor-pointer items-center gap-1 rounded-md px-3 py-2.5 text-xs font-medium transition-all duration-150 ${
                         completionFilter === "not_completed"
                           ? "bg-accent text-white shadow-sm"
                           : "text-muted hover:text-foreground"
