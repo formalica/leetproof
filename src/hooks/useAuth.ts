@@ -62,10 +62,40 @@ export function useAuth() {
     if (code) {
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (!error) {
-          // Clean the code from the URL
-          window.history.replaceState({}, "", window.location.pathname);
+          // Clean the code from the URL, preserving any query flags (e.g. mode).
+          params.delete("code");
+          const search = params.toString();
+          window.history.replaceState({}, "", window.location.pathname + (search ? `?${search}` : ""));
         }
       });
+    }
+
+    // Handle recovery/magic links that deliver the session via the URL hash
+    // fragment (e.g. `#access_token=...&refresh_token=...&type=recovery`).
+    // Without this the recovery session is never established, so the
+    // "Update password" flow stays blocked.
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : "";
+    if (hash) {
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      if (accessToken && refreshToken) {
+        supabase.auth
+          .setSession({ access_token: accessToken, refresh_token: refreshToken })
+          .then(({ data, error }) => {
+            if (!error) {
+              void setCurrentUser(data.user ?? null);
+              // Strip the tokens from the URL but keep the path/query intact.
+              window.history.replaceState(
+                {},
+                "",
+                window.location.pathname + window.location.search
+              );
+            }
+          });
+      }
     }
 
     const getUser = async () => {

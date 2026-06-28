@@ -27,6 +27,7 @@ function isInvalidCredentials(message: string) {
 export default function AuthPanel({ onSuccess }: AuthPanelProps) {
   const {
     user,
+    loading,
     signInWithGoogle,
     signInWithGitHub,
     signInWithPassword,
@@ -351,7 +352,7 @@ export default function AuthPanel({ onSuccess }: AuthPanelProps) {
 
         {mode === "update-password" && (
           <form onSubmit={handleUpdatePassword} className="space-y-4">
-            {!user && (
+            {loading && (
               <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
                 Finishing password reset session...
               </p>
@@ -386,7 +387,7 @@ export default function AuthPanel({ onSuccess }: AuthPanelProps) {
             </div>
             <button
               type="submit"
-              disabled={submitting || !user}
+              disabled={submitting || loading}
               className="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Updating..." : "Update password"}
