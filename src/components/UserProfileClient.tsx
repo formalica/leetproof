@@ -422,38 +422,48 @@ export default function UserProfileClient() {
               </>
             )}
             {isOwner && (
-              <div className={`mt-4 flex flex-wrap gap-2${editing ? " invisible pointer-events-none h-0 !mt-0" : ""}`}
+              <div className={`mt-4 flex flex-col gap-2${editing ? " invisible pointer-events-none h-0 !mt-0" : ""}`}
                 aria-hidden={editing}
               >
-                <button
-                  onClick={() => {
-                    setStatus(null);
-                    setEditing(true);
-                  }}
-                  className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition hover:bg-accent/90"
-                >
-                  Edit profile
-                </button>
-                <button
-                  onClick={handleDownloadArchive}
-                  disabled={downloading}
-                  className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border disabled:opacity-50"
-                >
-                  {downloading ? "Preparing..." : "Download my data"}
-                </button>
-                <button
-                  onClick={handleSignOut}
-                  className="rounded-md bg-hover px-3 py-1.5 text-sm text-muted transition hover:bg-border hover:text-foreground"
-                >
-                  Sign Out
-                </button>
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={saving}
-                  className="rounded-md border border-[var(--danger)]/40 bg-[var(--danger)]/10 px-3 py-1.5 text-sm font-medium text-[var(--danger)] transition hover:bg-[var(--danger)]/20 disabled:opacity-50"
-                >
-                  Delete account
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setStatus(null);
+                      setEditing(true);
+                    }}
+                    className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border"
+                  >
+                    Edit profile
+                  </button>
+                  <button
+                    onClick={() => router.push("/login?mode=reset-password")}
+                    className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border"
+                  >
+                    Change password
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={saving}
+                    className="rounded-md border border-[var(--danger)]/40 bg-[var(--danger)]/10 px-3 py-1.5 text-sm font-medium text-[var(--danger)] transition hover:bg-[var(--danger)]/20 disabled:opacity-50"
+                  >
+                    Delete account
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleDownloadArchive}
+                    disabled={downloading}
+                    className="rounded-md bg-hover px-3 py-1.5 text-sm text-foreground transition hover:bg-border disabled:opacity-50"
+                  >
+                    {downloading ? "Preparing..." : "Download my data"}
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="rounded-md bg-hover px-3 py-1.5 text-sm text-muted transition hover:bg-border hover:text-foreground"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
             )}
             {editing && (
