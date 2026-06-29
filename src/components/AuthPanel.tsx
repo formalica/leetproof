@@ -53,8 +53,26 @@ export default function AuthPanel({ onSuccess }: AuthPanelProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
     if (params.get("mode") === "reset-password") {
       setMode("update-password");
+    }
+
+    const errorCode = params.get("error_code") ?? hashParams.get("error_code");
+    const errorDescription =
+      params.get("error_description") ?? hashParams.get("error_description");
+    const error = params.get("error") ?? hashParams.get("error");
+
+    if (error || errorCode || errorDescription) {
+      const description = errorDescription ?? "This link is invalid or has expired.";
+      const expired = errorCode === "otp_expired";
+      setStatus({
+        type: "error",
+        text: expired
+          ? `${description}. Password reset links can only be used once and expire after a short time. Please request a new reset email.`
+          : description,
+      });
     }
   }, []);
 
