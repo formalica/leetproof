@@ -2,7 +2,7 @@
 slug: "or-commutative"
 title: "Or is Commutative"
 difficulty: "easy"
-tags: ["logic", "or"]
+tags: ["basics", "logic"]
 sort_order: 1
 verifier_code: |
   import Lean

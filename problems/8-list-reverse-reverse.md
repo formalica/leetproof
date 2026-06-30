@@ -2,7 +2,7 @@
 slug: "list-reverse-reverse"
 title: "List Reverse Reverse"
 difficulty: "medium"
-tags: ["lists", "induction", "program-verification"]
+tags: ["list", "induction", "program-verification"]
 sort_order: 8
 verifier_code: |
   import Lean

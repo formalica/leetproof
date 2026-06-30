@@ -2,7 +2,7 @@
 slug: "collatz-terminates"
 title: "Collatz Terminates"
 difficulty: "medium"
-tags: ["inductive", "number-theory", "decidability", "computation"]
+tags: ["induction", "number-theory", "decidability"]
 sort_order: 15
 verifier_code: |
   import Lean

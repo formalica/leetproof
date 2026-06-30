@@ -2,7 +2,7 @@
 slug: "and-introduction"
 title: "And Introduction"
 difficulty: "easy"
-tags: ["logic", "and", "tactics"]
+tags: ["basics", "logic"]
 sort_order: 2
 verifier_code: |
   import Lean

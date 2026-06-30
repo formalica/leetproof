@@ -2,7 +2,7 @@
 slug: "double-neg-elim"
 title: "Double Negation Elimination"
 difficulty: "easy"
-tags: ["logic", "classical", "tactics"]
+tags: ["logic", "classical"]
 sort_order: 9
 verifier_code: |
   import Lean

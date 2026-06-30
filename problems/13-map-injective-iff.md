@@ -2,7 +2,7 @@
 slug: "map-injective-iff"
 title: "Map Preserves Injectivity"
 difficulty: "medium"
-tags: ["lists", "induction", "functions"]
+tags: ["list", "induction", "functions"]
 sort_order: 13
 verifier_code: |
   import Lean

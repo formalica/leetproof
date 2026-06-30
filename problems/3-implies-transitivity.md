@@ -2,7 +2,7 @@
 slug: "implies-transitivity"
 title: "Implies Transitivity"
 difficulty: "easy"
-tags: ["logic", "implication", "tactics"]
+tags: ["basics", "logic"]
 sort_order: 3
 verifier_code: |
   import Lean

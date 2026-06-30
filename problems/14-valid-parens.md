@@ -2,7 +2,7 @@
 slug: "valid-parentheses"
 title: "Valid Parentheses"
 difficulty: "hard"
-tags: ["lists", "induction", "strings", "algorithms"]
+tags: ["list", "induction", "string", "program-verification"]
 sort_order: 14
 verifier_code: |
   import Lean

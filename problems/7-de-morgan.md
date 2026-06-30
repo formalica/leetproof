@@ -2,7 +2,7 @@
 slug: "de-morgan"
 title: "De Morgan's Law"
 difficulty: "easy"
-tags: ["logic", "negation"]
+tags: ["logic"]
 sort_order: 7
 verifier_code: |
   import Lean
