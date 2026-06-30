@@ -28,9 +28,7 @@ export interface Problem {
   difficulty: Difficulty;
   description: string;
   starter_code: string;
-  main_theorem_name: string | null;
-  theorem_type: string | null;
-  allowed_axioms: string[] | null;
+  verifier_code: string | null;
   tags: string[];
   sort_order: number;
   created_at: string;

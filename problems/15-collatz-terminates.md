@@ -18,7 +18,7 @@ verifier_code: |
       let used ← Lean.collectAxioms thmName
       if used.contains ``sorryAx then
         throwError m!"'{thmName}' proof uses sorry"
-      let allowedNames := [``propext, ``Classical.choice, ``Quot.sound, ``Lean.ofReduceBool]
+      let allowedNames := [``propext, ``Classical.choice, ``Quot.sound, ``Lean.ofReduceBool, ``Lean.trustCompiler]
       let disallowed := used.filter (fun ax => !allowedNames.contains ax)
       if !disallowed.isEmpty then
         throwError m!"'{thmName}' uses disallowed axioms: {disallowed.toList}"
@@ -36,13 +36,11 @@ starter_code: |
     sorry
 ---
 
-## Collatz Terminates
+The **Collatz sequence** starting from $n$ is defined by repeatedly applying the function:
 
-The **Collatz sequence** starting from $n$ is defined by repeatedly applying:
+$$f(n) = \begin{cases} n / 2 & \text{if } n \text{ is even} \\ 3n + 1 & \text{if } n \text{ is odd} \end{cases}$$
 
-$$c(n) = \begin{cases} \text{done} & \text{if } n = 1 \\ c(n / 2) & \text{if } n \text{ is even} \\ c(3n + 1) & \text{if } n \text{ is odd} \end{cases}$$
-
-The **Collatz conjecture** (also known as the $3n+1$ problem) states that this sequence always eventually reaches $1$ — but it remains unproven for all natural numbers!
+until we reach $1$. The **Collatz conjecture** (also known as the $3n+1$ problem) states that this sequence always eventually reaches $1$ — but it remains unproven for all natural numbers!
 
 Your tasks:
 
@@ -53,7 +51,7 @@ Your tasks:
    - `collatz_3 : CollatzTerminates 3`
    - `collatz_1412987847 : CollatzTerminates 1412987847`
 
-The small cases can be proved by directly applying your constructors. For the large number, that tactic will not scale, so consider other approaches.
+The small cases can be proved by directly applying your constructors. For the large number, this tactic will not scale, so consider other approaches.
 
 <br>
 <details>
