@@ -23,18 +23,16 @@ interface Lean4EditorInnerProps {
   code?: string;
   problemId?: string;
   problemSlug?: string;
-  mainTheoremName?: string;
-  theoremType?: string;
-  allowedAxioms?: string[];
+  verifierCode?: string;
   version: LeanVersion;
   onVersionChange: (v: LeanVersion) => void;
   pendingCode?: string | null;
 }
 
-export default function Lean4EditorInner({ code: initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms, version, onVersionChange, pendingCode }: Lean4EditorInnerProps) {
+export default function Lean4EditorInner({ code: initialCode, problemId, problemSlug, verifierCode, version, onVersionChange, pendingCode }: Lean4EditorInnerProps) {
   return (
     <Provider>
-      <Lean4EditorCore initialCode={initialCode} problemId={problemId} problemSlug={problemSlug} mainTheoremName={mainTheoremName} theoremType={theoremType} allowedAxioms={allowedAxioms} version={version} onVersionChange={onVersionChange} pendingCode={pendingCode} />
+      <Lean4EditorCore initialCode={initialCode} problemId={problemId} problemSlug={problemSlug} verifierCode={verifierCode} version={version} onVersionChange={onVersionChange} pendingCode={pendingCode} />
     </Provider>
   );
 }
@@ -67,7 +65,7 @@ function buildVSCodeOptions(settings: { theme: string; wordWrap: boolean; accept
   };
 }
 
-function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms, version, onVersionChange, pendingCode }: { initialCode?: string; problemId?: string; problemSlug?: string; mainTheoremName?: string; theoremType?: string; allowedAxioms?: string[]; version: LeanVersion; onVersionChange: (v: LeanVersion) => void; pendingCode?: string | null }) {
+function Lean4EditorCore({ initialCode, problemId, problemSlug, verifierCode, version, onVersionChange, pendingCode }: { initialCode?: string; problemId?: string; problemSlug?: string; verifierCode?: string; version: LeanVersion; onVersionChange: (v: LeanVersion) => void; pendingCode?: string | null }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const infoviewRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -348,7 +346,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
       setSubmitMessage({ type: 'error', text: 'Please sign in to submit your proof.' });
       return;
     }
-    if (!problemId || !mainTheoremName) {
+    if (!problemId) {
       setSubmitMessage({ type: 'error', text: 'Problem data not available.' });
       return;
     }
@@ -361,10 +359,9 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     setSubmitMessage(null);
 
     try {
-      const result = await verifyProof(editor, mainTheoremName, {
+      const result = await verifyProof(editor, {
         projectFolder,
-        theoremType,
-        allowedAxioms,
+        verifierCode,
       });
 
       const supabase = createClient();
@@ -402,7 +399,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
     } finally {
       setSubmitting(false);
     }
-  }, [user, problemId, mainTheoremName, theoremType, allowedAxioms, editor, version]);
+  }, [user, problemId, verifierCode, editor, version]);
 
   return (
     <div className="lean4web-root monaco-workbench">
@@ -422,7 +419,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, mainTheoremName,
           {/* Lean 4 Editor */}
         </span>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {problemId && mainTheoremName && (
+          {problemId && (
             <button
               onClick={handleSubmit}
               disabled={submitting}

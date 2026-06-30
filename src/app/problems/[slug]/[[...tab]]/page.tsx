@@ -80,9 +80,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
               code={p.starter_code}
               problemId={p.id}
               problemSlug={p.slug}
-              mainTheoremName={p.main_theorem_name ?? undefined}
-              theoremType={p.theorem_type ?? undefined}
-              allowedAxioms={p.allowed_axioms ?? undefined}
+              verifierCode={p.verifier_code ?? undefined}
             />
           </div>
         }

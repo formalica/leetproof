@@ -4,9 +4,22 @@ title: "Valid Parentheses"
 difficulty: "hard"
 tags: ["lists", "induction", "strings", "algorithms"]
 sort_order: 14
-main_theorem_name: "valid_parens_correct"
-theorem_type: "(s : List Char) → (isValidParens s = true ↔ ValidParens s)"
-allowed_axioms: ['propext','Classical.choice','Quot.sound']
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (valid_parens_correct : (s : List Char) → (isValidParens s = true ↔ ValidParens s))
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``valid_parens_correct
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext, ``Classical.choice, ``Quot.sound]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   inductive ValidParens : List Char → Prop where
     -- define ValidParens inductivelly 
@@ -40,3 +53,4 @@ An input list is valid if (considering only the parentheses characters, skip oth
 - `['(', '(', ')', ')']` → valid (nested pairs)
 - `['(', 'a', ')']` → valid (other characters are ignored)
 - `['a', 'b']` → valid (no parentheses to check)
+

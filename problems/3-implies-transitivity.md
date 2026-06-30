@@ -4,9 +4,22 @@ title: "Implies Transitivity"
 difficulty: "easy"
 tags: ["logic", "implication", "tactics"]
 sort_order: 3
-main_theorem_name: "implies_trans"
-theorem_type: "(P Q R : Prop) \u2192 (P \u2192 Q) \u2192 (Q \u2192 R) \u2192 P \u2192 R"
-allowed_axioms: []
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (implies_trans : (P Q R : Prop) → (P → Q) → (Q → R) → P → R)
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``implies_trans
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := []
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   theorem implies_trans (P Q R : Prop) (hpq : P → Q) (hqr : Q → R) : P → R := by
     sorry
@@ -16,6 +29,20 @@ starter_code: |
 
 Prove that implication is transitive: if `P → Q` and `Q → R`, then `P → R`.
 
-### Background
+<br>
 
-Implication (`→`) in Lean 4 corresponds to function types. A proof of `P → Q` is literally a function that takes a proof of `P` and returns a proof of `Q`. Transitivity of implication is just function composition!
+<details>
+<summary>References</summary>
+
+[`Function.comp`](https://leanprover-community.github.io/mathlib4_docs/Init/Prelude.html#Function.comp)
+
+</details>
+
+<details>
+<summary>Related Problems</summary>
+
+[Or is Commutative](/problems/or-commutative)
+
+[And Introduction](/problems/and-introduction)
+
+</details>

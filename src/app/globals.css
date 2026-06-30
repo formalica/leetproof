@@ -117,6 +117,12 @@ body {
   content: none !important;
 }
 
+/* Reduce hr margins from the default 3em in prose */
+.prose :where(hr):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
 /* Light theme markdown overrides (prose-invert makes everything white) */
 :root[data-theme="light"] .markdown-content p,
 :root[data-theme="light"] .markdown-content li {

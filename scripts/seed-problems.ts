@@ -279,9 +279,7 @@ interface ProblemFrontmatter {
   tags: string[];
   sort_order: number;
   starter_code: string;
-  main_theorem_name: string;
-  theorem_type: string;
-  allowed_axioms: string[];
+  verifier_code: string;
 }
 
 async function main() {
@@ -334,9 +332,7 @@ async function main() {
       starter_code: (frontmatter.starter_code || "").trim(),
       tags: frontmatter.tags || [],
       sort_order: frontmatter.sort_order || 0,
-      main_theorem_name: frontmatter.main_theorem_name || null,
-      theorem_type: frontmatter.theorem_type || null,
-      allowed_axioms: frontmatter.allowed_axioms || null,
+      verifier_code: frontmatter.verifier_code || null,
     };
 
     // Upsert: insert or update if slug already exists

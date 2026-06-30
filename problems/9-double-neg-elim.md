@@ -4,9 +4,22 @@ title: "Double Negation Elimination"
 difficulty: "easy"
 tags: ["logic", "classical", "tactics"]
 sort_order: 9
-main_theorem_name: "not_not"
-theorem_type: "(P : Prop) \u2192 \u00AC\u00ACP \u2192 P"
-allowed_axioms: ['propext', 'Classical.choice', 'Quot.sound']
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (not_not : (P : Prop) → ¬¬P → P)
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``not_not
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext, ``Classical.choice, ``Quot.sound]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   theorem not_not (P : Prop) : ¬¬P → P := by
     sorry
@@ -16,13 +29,19 @@ starter_code: |
 
 Prove **double negation elimination**: `¬¬P → P`.
 
-This requires classical logic — it is not provable constructively.
+<br>
+<details>
 
-### Background
+<summary>References</summary>
 
-In constructive logic (the default in Lean 4), `¬¬P → P` is **not** provable. However, with the classical axiom `em : ∀ (P : Prop), P ∨ ¬P` (law of excluded middle), we can prove it.
+[`Classical.not_not`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Logic/Basic.html#Classical.not_not)
 
-The `Classical` namespace provides:
-- `Classical.em (P : Prop) : P ∨ ¬P`
-- `Classical.byContradiction : (¬P → False) → P`
+</details>
 
+<details>
+<summary>Related Problems</summary>
+
+[False Implies Anything](/problems/false-implies-anything)  
+[De Morgan's Law](/problems/de-morgan)
+
+</details>

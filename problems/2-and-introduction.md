@@ -4,9 +4,22 @@ title: "And Introduction"
 difficulty: "easy"
 tags: ["logic", "and", "tactics"]
 sort_order: 2
-main_theorem_name: "and_intro"
-theorem_type: "(p : Prop) \u2192 (q : Prop) \u2192 p \u2192 q \u2192 p \u2227 q"
-allowed_axioms: []
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (and_intro : (p : Prop) → (q : Prop) → p → q → p ∧ q)
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``and_intro
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := []
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   theorem and_intro (p : Prop) (q : Prop) (hp : p) (hq : q) : p ∧ q := by
     sorry
@@ -16,6 +29,19 @@ starter_code: |
 
 Given propositions `P` and `Q`, and proofs `hp : P` and `hq : Q`, prove `P ∧ Q`.
 
-### Background
+<br>
 
-The conjunction `P ∧ Q` (read "P and Q") is true when both `P` and `Q` are true. In Lean 4, you construct a proof of `P ∧ Q` by providing proofs of both `P` and `Q`.
+<details>
+<summary>References</summary>
+
+[`And.intro`](https://leanprover-community.github.io/mathlib4_docs/Init/Prelude.html#And.intro)
+
+</details>
+
+<details>
+<summary>Related Problems</summary>
+
+[Or is Commutative](/problems/or-commutative)  
+[Implies Transitivity](/problems/implies-transitivity)
+
+</details>

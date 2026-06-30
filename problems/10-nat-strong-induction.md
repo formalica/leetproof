@@ -4,9 +4,22 @@ title: "Strong Induction Principle"
 difficulty: "medium"
 tags: ["natural-numbers", "induction"]
 sort_order: 10
-main_theorem_name: "strong_induction"
-theorem_type: "(P : Nat \u2192 Prop) \u2192 (\u2200 n, (\u2200 m, m < n \u2192 P m) \u2192 P n) \u2192 \u2200 n, P n"
-allowed_axioms: ['propext', 'Classical.choice', 'Quot.sound']
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (strong_induction : (P : Nat → Prop) → (∀ n, (∀ m, m < n → P m) → P n) → ∀ n, P n)
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``strong_induction
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext, ``Classical.choice, ``Quot.sound]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   theorem strong_induction
     (P : Nat → Prop)
@@ -23,7 +36,19 @@ If for every `n`, `P n` holds whenever `P m` holds for all `m < n`, then `P n` h
 
 $$\left(\forall n,\; (\forall m < n,\; P(m)) \Rightarrow P(n)\right) \Rightarrow \forall n,\; P(n)$$
 
-### Background
+<br>
+<details>
 
-Ordinary induction proves `P n` by assuming `P (n-1)`. Strong induction is more powerful: to prove `P n`, you may assume `P m` for **all** `m < n`. This is particularly useful for proofs where you need to "look back" more than one step.
+<summary>References</summary>
 
+[`Nat.strongRecOn`](https://leanprover-community.github.io/mathlib4_docs/Init/WFSimpLemmas.html#Nat.strongRecOn)
+
+</details>
+
+<details>
+<summary>Related Problems</summary>
+
+[Natural Number: m+(n+1)=(m+n)+1](/problems/nat-add-succ)  
+[Natural Number: (m+1)+n=(m+n)+1](/problems/nat-succ-add)
+
+</details>

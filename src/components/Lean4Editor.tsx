@@ -20,9 +20,7 @@ interface Lean4EditorProps {
   code?: string;
   problemId?: string;
   problemSlug?: string;
-  mainTheoremName?: string;
-  theoremType?: string;
-  allowedAxioms?: string[];
+  verifierCode?: string;
 }
 
 /**
@@ -30,7 +28,7 @@ interface Lean4EditorProps {
  * Connects to the remote Lean server at live.lean-lang.org via WebSocket.
  * Code is persisted per-problem in localStorage.
  */
-export default function Lean4Editor({ code, problemId, problemSlug, mainTheoremName, theoremType, allowedAxioms }: Lean4EditorProps) {
+export default function Lean4Editor({ code, problemId, problemSlug, verifierCode }: Lean4EditorProps) {
   const [version, setVersion] = useState<LeanVersion>(() => loadSavedVersion());
   const pendingCodeRef = useRef<string | null>(null);
 
@@ -64,9 +62,7 @@ export default function Lean4Editor({ code, problemId, problemSlug, mainTheoremN
       code={code}
       problemId={problemId}
       problemSlug={problemSlug}
-      mainTheoremName={mainTheoremName}
-      theoremType={theoremType}
-      allowedAxioms={allowedAxioms}
+      verifierCode={verifierCode}
       version={version}
       onVersionChange={handleVersionChange}
       pendingCode={pendingCode}

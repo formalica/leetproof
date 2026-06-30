@@ -4,9 +4,22 @@ title: "Map Preserves Injectivity"
 difficulty: "medium"
 tags: ["lists", "induction", "functions"]
 sort_order: 13
-main_theorem_name: "map_injective_iff"
-theorem_type: "{α β: Sort _} → (f : α → β) → (Function.Injective f ↔ Function.Injective (List.map f))"
-allowed_axioms: ['propext','Classical.choice','Quot.sound']
+verifier_code: |
+  import Lean
+
+  {{SOLUTION}}
+
+  #check (map_injective_iff : {α β: Sort _} → (f : α → β) → (Function.Injective f ↔ Function.Injective (List.map f)))
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``map_injective_iff
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext, ``Classical.choice, ``Quot.sound]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   theorem map_injective_iff (f : α → β) :
       Function.Injective f ↔ Function.Injective (List.map f) := by
@@ -19,12 +32,11 @@ Prove that a function is injective if and only if mapping it over lists is injec
 
 $$\hspace{2em} \text{Injective}(f) \iff \text{Injective}(\text{map}\ f)$$
 
-### Background
+<br>
+<details>
 
-A function `f` is **injective** (one-to-one) if `f a = f b → a = b` for all `a, b`.
+<summary>References</summary>
 
-`List.map f` applies `f` to every element of a list:
-- `List.map f [] = []`
-- `List.map f (x :: xs) = f x :: List.map f xs`
+[`List.map_injective_iff`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Inj.html#List.map_injective_iff)
 
-This theorem establishes that injectivity of `f` is equivalent to injectivity of `List.map f`. You'll likely want to prove each direction separately as helper lemmas.
+</details>

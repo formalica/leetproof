@@ -39,13 +39,71 @@ function waitForDiagnostics(
   });
 }
 
+const SOLUTION_PLACEHOLDER = /\{\{\s*solution\s*\}\}/i;
+
+/**
+ * Build the final Lean verification file from a per-problem verifier template
+ * and the user's submitted solution code.
+ *
+ * The merge rules mirror the structure of a Lean file:
+ *  1. The user's solution is spliced into the template. If the template
+ *     contains a `{{SOLUTION}}` placeholder, the solution replaces it.
+ *     Otherwise the solution is inserted right after the template's leading
+ *     import header (the first run of blank/comment/`import` lines), and the
+ *     remaining template (the `#check`/`#eval` checks) is appended after it.
+ *  2. All `import` lines (from both the template and the solution) are hoisted
+ *     to the very top and de-duplicated, since Lean requires imports first.
+ */
+export function buildVerifierCode(template: string, solution: string): string {
+  let merged: string;
+
+  if (SOLUTION_PLACEHOLDER.test(template)) {
+    merged = template.replace(SOLUTION_PLACEHOLDER, solution);
+  } else {
+    const lines = template.split('\n');
+    let i = 0;
+    while (i < lines.length) {
+      const t = lines[i].trim();
+      if (t === '' || t.startsWith('import ') || t.startsWith('--')) {
+        i++;
+        continue;
+      }
+      break;
+    }
+    const header = lines.slice(0, i).join('\n');
+    const rest = lines.slice(i).join('\n');
+    merged = `${header}\n${solution}\n\n${rest}`;
+  }
+
+  // Hoist all import lines to the top (Lean requires imports before any code).
+  const imports: string[] = [];
+  const body: string[] = [];
+  for (const line of merged.split('\n')) {
+    if (/^\s*import\s/.test(line)) {
+      const trimmed = line.trim();
+      if (!imports.includes(trimmed)) imports.push(trimmed);
+    } else {
+      body.push(line);
+    }
+  }
+
+  const header = imports.length > 0 ? imports.join('\n') + '\n\n' : '';
+  return header + body.join('\n').replace(/^\n+/, '');
+}
+
+/**
+ * Build the default verifier code when a problem has no `verifierCode` template.
+ * Just compiles the user's solution (prefixed with `import Lean`).
+ */
+function buildDefaultVerifierCode(solution: string): string {
+  return 'import Lean\n\n' + solution + '\n';
+}
+
 export async function verifyProof(
   mainEditor: monaco.editor.IStandaloneCodeEditor,
-  theoremName: string,
   options?: {
     projectFolder?: string;
-    theoremType?: string;
-    allowedAxioms?: string[];
+    verifierCode?: string;
   }
 ): Promise<VerifyResult> {
   const mainModel = mainEditor.getModel();
@@ -56,24 +114,9 @@ export async function verifyProof(
   const projectFolder = options?.projectFolder ?? 'MathlibDemo';
   const code = mainModel.getValue();
 
-  let verifyCode = 'import Lean\n\n' + code + '\n\n';
-
-  if (options?.theoremType) {
-    verifyCode += `#check (${theoremName} : ${options.theoremType})\n\n`;
-  }
-
-  const axioms = options?.allowedAxioms ?? [];
-  const axiomNames = axioms.map((a) => '``' + a).join(', ');
-  verifyCode += `#eval show Lean.Meta.MetaM Unit from do
-  let thmName := \`\`${theoremName}
-  let used ← Lean.collectAxioms thmName
-  if used.contains \`\`sorryAx then
-    throwError m!"'{thmName}' proof uses sorry"
-  let allowedNames := [${axiomNames}]
-  let disallowed := used.filter (fun ax => !allowedNames.contains ax)
-  if !disallowed.isEmpty then
-    throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
-\n`;
+  const verifyCode = options?.verifierCode
+    ? buildVerifierCode(options.verifierCode, code)
+    : buildDefaultVerifierCode(code);
 
   const hiddenContainer = document.createElement('div');
   hiddenContainer.style.position = 'fixed';
