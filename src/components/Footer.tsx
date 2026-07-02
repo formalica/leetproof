@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Footer() {
@@ -15,32 +16,39 @@ export default function Footer() {
           <div className="text-sm text-muted">
              {new Date().getFullYear()} LeetProof. Theorem proving platform.
           </div>
-          {/* <div className="flex gap-6 text-sm text-muted">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted">
             <a
-              href="https://github.com/leanprover-community/lean4web"
+              href="https://discord.app/leetproof"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-foreground"
             >
-              Lean4Web
+              Discord
             </a>
             <a
-              href="https://lean-lang.org/"
+              href="https://x.com/leetproof"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-foreground"
             >
-              Lean 4
+              X
             </a>
             <a
-              href="https://leanprover-community.github.io/"
+              href="https://github.com/nnarek/leetproof"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-foreground"
             >
-              Mathlib
+              GitHub
             </a>
-          </div> */}
+
+            <Link href="/privacy" className="transition hover:text-foreground">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="transition hover:text-foreground">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
