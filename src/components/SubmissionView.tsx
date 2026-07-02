@@ -80,7 +80,7 @@ export default function SubmissionView({
         submission_id: sub.id,
         title: sub.name || "Untitled Solution",
         content: sub.notes || "",
-        is_public: false,
+        is_public: true,
         tags: [],
         version: sub.version,
       })
