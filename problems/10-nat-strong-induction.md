@@ -20,6 +20,19 @@ verifier_code: |
     let disallowed := used.filter (fun ax => !allowedNames.contains ax)
     if !disallowed.isEmpty then
       throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
+
+  #eval show Lean.CoreM Unit from do
+    let thmName := ``strong_induction
+    let forbiddenName := ``Nat.strongRecOn
+    let env ← Lean.getEnv
+    if let some decl := env.find? thmName then
+      let proofTerm? := match decl with
+        | .thmInfo info  => some info.value
+        | .defnInfo info => some info.value
+        | _              => none
+      if let some proof := proofTerm? then
+        if (proof.find? fun e => e.isConstOf forbiddenName).isSome then
+          throwError s!"using {forbiddenName} is not allowed in {thmName}"
 starter_code: |
   theorem strong_induction
     (P : Nat → Prop)
@@ -36,12 +49,14 @@ If for every `n`, `P n` holds whenever `P m` holds for all `m < n`, then `P n` h
 
 $$\left(\forall n,\; (\forall m < n,\; P(m)) \Rightarrow P(n)\right) \Rightarrow \forall n,\; P(n)$$
 
+**Note:** Using the exact same alternative of this theorem from libraries is not allowed.
+
 <br>
 <details>
 
 <summary>References</summary>
 
-[`Nat.strongRecOn`](https://leanprover-community.github.io/mathlib4_docs/Init/WFSimpLemmas.html#Nat.strongRecOn)
+[`Nat.strongRecOn`](https://leanprover-community.github.io/mathlib4_docs/Init/WF.html#Nat.strongRecOn)
 
 </details>
 

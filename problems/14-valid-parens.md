@@ -11,6 +11,15 @@ verifier_code: |
 
   #check (valid_parens_correct : (s : List Char) → (isValidParens s = true ↔ ValidParens s))
 
+  example : isValidParens [] = true := rfl
+  example : isValidParens ['(', ')'] = true := rfl
+  example : isValidParens ['(', ')', ')'] = false := rfl
+  example : isValidParens ['(', '(', ')', ')'] = true := rfl
+  example : isValidParens ['(', 'a', ')'] = true := rfl
+  example : isValidParens ['a', 'b'] = true := rfl
+  example : isValidParens ['(', ')', 'a'] = true := rfl
+  example : isValidParens ['(', '}', ')'] = true := rfl
+
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``valid_parens_correct
     let used ← Lean.collectAxioms thmName
@@ -26,10 +35,10 @@ starter_code: |
 
   def isValidParens (s : List Char) : Bool := sorry
 
-  example: isValidParens [] = true := by sorry
-  example: isValidParens ['(', ')', 'a'] = true := by sorry
-  example: isValidParens ['(', ')', ')'] = false := by sorry
-  example: isValidParens ['(','}',')'] = true := by sorry
+  example: isValidParens [] = true := by rfl
+  example: isValidParens ['(', ')', 'a'] = true := by rfl
+  example: isValidParens ['(', ')', ')'] = false := by rfl
+  example: isValidParens ['(','}',')'] = true := by rfl
 
   theorem valid_parens_correct : ∀ s, isValidParens s = true ↔ ValidParens s := by
     sorry

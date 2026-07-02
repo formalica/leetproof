@@ -12,6 +12,11 @@ verifier_code: |
   #check (List.rev : {α : Type} → List α → List α)
   #check (rev_rev : (α : Type) → (xs : List α) → xs.rev.rev = xs)
 
+  example : List.rev ([] : List Nat) = [] := rfl
+  example : List.rev [1] = [1] := rfl
+  example : List.rev [1, 2, 3] = [3, 2, 1] := rfl
+  example : List.rev ["a", "b", "c"] = ["c", "b", "a"] := rfl
+
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``rev_rev
     let used ← Lean.collectAxioms thmName
@@ -21,6 +26,19 @@ verifier_code: |
     let disallowed := used.filter (fun ax => !allowedNames.contains ax)
     if !disallowed.isEmpty then
       throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
+
+  #eval show Lean.CoreM Unit from do
+    let checks := [(``List.rev, ``List.reverse), (``rev_rev, ``List.reverse_reverse)]
+    let env ← Lean.getEnv
+    for (thmName, forbiddenName) in checks do
+      if let some decl := env.find? thmName then
+        let proofTerm? := match decl with
+          | .thmInfo info  => some info.value
+          | .defnInfo info => some info.value
+          | _              => none
+        if let some proof := proofTerm? then
+          if (proof.find? fun e => e.isConstOf forbiddenName).isSome then
+            throwError s!"using {forbiddenName} is not allowed in {thmName}"
 starter_code: |
   def List.rev : List α → List α := sorry
 
@@ -33,6 +51,8 @@ starter_code: |
 Implement the `List.rev` function to reverse a list, then prove that reversing a list twice returns the original:
 
  $$\hspace{2em} \text{rev}(\text{rev}(xs)) = xs$$
+
+**Note:** Using the exact same alternative of `List.rev` function and `rev_rev` theorem from libraries is not allowed.
 
 <br>
 <details>
