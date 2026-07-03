@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getProfileDisplayName } from "@/lib/profile";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import ThemeToggle from "./ThemeToggle";
+import SettingsMenu from "./SettingsMenu";
 
 export default function Navbar() {
   const { user, profile, loading } = useAuth();
@@ -83,7 +83,7 @@ export default function Navbar() {
           </Link>
 
           {/* Nav Links */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <Link
               href="/problems"
               className="text-sm font-medium text-foreground transition hover:text-accent"
@@ -91,7 +91,6 @@ export default function Navbar() {
               Problems
             </Link>
 
-            <ThemeToggle />
 
             {/* Auth */}
             {loading ? (
@@ -147,6 +146,8 @@ export default function Navbar() {
                 )}
               </>
             )}
+            <SettingsMenu />
+
           </div>
         </div>
       </div>
