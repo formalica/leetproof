@@ -16,6 +16,13 @@ const PANEL_SPLIT_COOKIE = "leetproof_panel_split";
 const DEFAULT_LEFT_PERCENT = 30;
 
 async function getSavedPanelSplit(): Promise<number> {
+  // Static export (`output: "export"`, used for GitHub Pages) has no server
+  // to read cookies at request time, and `cookies()` breaks static
+  // prerendering entirely — skip it and fall back to the default there.
+  if (process.env.NEXT_PUBLIC_LEETPROOF_SERVERLESS === "true") {
+    return DEFAULT_LEFT_PERCENT;
+  }
+
   const cookieStore = await cookies();
   const raw = cookieStore.get(PANEL_SPLIT_COOKIE)?.value;
   if (!raw) return DEFAULT_LEFT_PERCENT;
