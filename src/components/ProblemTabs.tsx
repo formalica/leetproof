@@ -36,11 +36,16 @@ export default function ProblemTabs({ problem, initialTab }: ProblemTabsProps) {
       .then(({ count }) => setSolved((count ?? 0) > 0));
   }, [user, problem.id]);
 
-  // Auto-switch to submissions tab when a new submission is created
+  // Auto-switch to submissions tab when a new submission is created, and
+  // deep-link directly to that submission (not just the submissions list).
   useEffect(() => {
-    const handleNewSubmission = () => {
+    const handleNewSubmission = (e: Event) => {
+      const sub = (e as CustomEvent).detail as { id?: string } | undefined;
       setActiveTab("submissions");
-      window.history.replaceState(null, "", `/problems/${problem.slug}/submissions`);
+      const url = sub?.id
+        ? `/problems/${problem.slug}/submissions?id=${sub.id}`
+        : `/problems/${problem.slug}/submissions`;
+      window.history.replaceState(null, "", url);
     };
     window.addEventListener("leetproof:submission-created", handleNewSubmission);
     return () => window.removeEventListener("leetproof:submission-created", handleNewSubmission);
