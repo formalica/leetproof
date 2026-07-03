@@ -12,7 +12,7 @@ interface ResizableProblemLayoutProps {
 export default function ResizableProblemLayout({
   left,
   right,
-  defaultLeftPercent = 36,
+  defaultLeftPercent = 29,
   minPanelPx = 280,
 }: ResizableProblemLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
