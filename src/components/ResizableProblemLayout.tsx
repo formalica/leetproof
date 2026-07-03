@@ -2,6 +2,21 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 
+// Persisted split percentage. The server reads this cookie (see
+// src/app/problems/[slug]/[[...tab]]/page.tsx) and passes the saved value in
+// as `defaultLeftPercent`, so the correct size is already in the initial HTML
+// — no client-side restore step or flash of the default size needed.
+const COOKIE_NAME = "leetproof_panel_split";
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // ~13 months (browser cap)
+
+function savePanelSplitCookie(percent: number) {
+  try {
+    document.cookie = `${COOKIE_NAME}=${Math.round(percent * 100) / 100}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
+  } catch {
+    // document.cookie can throw in some restricted contexts — ignore.
+  }
+}
+
 interface ResizableProblemLayoutProps {
   left: React.ReactNode;
   right: React.ReactNode;
@@ -17,6 +32,7 @@ export default function ResizableProblemLayout({
 }: ResizableProblemLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [leftPercent, setLeftPercent] = useState(defaultLeftPercent);
+  const leftPercentRef = useRef(defaultLeftPercent);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -48,6 +64,7 @@ export default function ResizableProblemLayout({
         maxPercent,
         Math.max(minPercent, (offsetX / containerWidth) * 100)
       );
+      leftPercentRef.current = newPercent;
       setLeftPercent(newPercent);
     },
     [isDragging, minPanelPx]
@@ -55,6 +72,7 @@ export default function ResizableProblemLayout({
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    savePanelSplitCookie(leftPercentRef.current);
   }, []);
 
   useEffect(() => {

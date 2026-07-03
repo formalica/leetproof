@@ -1,6 +1,7 @@
 import { getServerDatabase } from "@/lib/db/server";
 import { Problem } from "@/lib/types";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import Lean4Editor from "@/components/Lean4Editor";
 import ResizableProblemLayout from "@/components/ResizableProblemLayout";
 import ProblemTabs from "@/components/ProblemTabs";
@@ -9,6 +10,19 @@ import type { Metadata } from "next";
 // In static-export mode revalidate is ignored (pages are built once).
 // In server mode this enables ISR every 60 s.
 export const revalidate = 60;
+
+// Keep in sync with COOKIE_NAME in ResizableProblemLayout.tsx.
+const PANEL_SPLIT_COOKIE = "leetproof_panel_split";
+const DEFAULT_LEFT_PERCENT = 30;
+
+async function getSavedPanelSplit(): Promise<number> {
+  const cookieStore = await cookies();
+  const raw = cookieStore.get(PANEL_SPLIT_COOKIE)?.value;
+  if (!raw) return DEFAULT_LEFT_PERCENT;
+  const parsed = parseFloat(raw);
+  if (Number.isNaN(parsed) || parsed <= 0 || parsed >= 100) return DEFAULT_LEFT_PERCENT;
+  return parsed;
+}
 
 interface ProblemPageProps {
   params: Promise<{ slug: string; tab?: string[] }>;
@@ -57,6 +71,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
   }
 
   const p = problem as Problem;
+  const savedLeftPercent = await getSavedPanelSplit();
 
   // Parse tab segments: [] = description, ["solutions"] = solutions,
   // ["submissions"] = submissions
@@ -68,6 +83,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
   return (
     <div className="flex flex-1 min-h-0 w-full p-[1px]">
       <ResizableProblemLayout
+        defaultLeftPercent={savedLeftPercent}
         left={
           <ProblemTabs
             problem={p}
