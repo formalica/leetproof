@@ -9,14 +9,16 @@ const GITHUB_CONTRIBUTE_URL =
 const LEAN_LEARN_URL = "https://lean-lang.org/learn/";
 
 // Placeholder address — more donation options will be added later.
-const FAKE_BTC_ADDRESS = "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq";
+const BTC_ADDRESS = "1MgrnRwtB5j854wBEf5d52gYHyrt8RGL4o";
+const ETH_ADDRESS = "0x64966CD7742845aE2c7017F06B3a283A4801fbDe";
+const GITHUB_SPONSORS_URL = "https://github.com/sponsors/formalica";
 
 export default function SettingsMenu() {
   const [open, setOpen] = useState(false);
   const [showDonate, setShowDonate] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isLight, setIsLight] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"btc" | "eth" | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const donateRef = useRef<HTMLDivElement>(null);
 
@@ -78,11 +80,11 @@ export default function SettingsMenu() {
     }
   };
 
-  const handleCopyAddress = async () => {
+  const handleCopyAddress = async (address: string, key: "btc" | "eth") => {
     try {
-      await navigator.clipboard.writeText(FAKE_BTC_ADDRESS);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(address);
+      setCopied(key);
+      setTimeout(() => setCopied(null), 2000);
     } catch {
       // Clipboard API unavailable — ignore.
     }
@@ -205,7 +207,7 @@ export default function SettingsMenu() {
       {/* Donate modal */}
       {showDonate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div ref={donateRef} className="w-full max-w-md px-4">
+          <div ref={donateRef} className="w-full max-w-lg px-4">
             <div className="rounded-xl border border-border bg-surface p-6 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-foreground">Support LeetProof</h2>
@@ -221,32 +223,58 @@ export default function SettingsMenu() {
               </div>
 
               <p className="mb-4 text-sm text-muted">
-                If LeetProof has helped you, consider chipping in to keep it running.
-                More donation options are coming soon.
+                If you've found LeetProof helpful, please consider making a contribution to support its upkeep and the development of new features.
               </p>
 
+              <div className="mb-4">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
+                  GitHub 
+                </label>
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2">
+                  <span className="min-w-0 flex-1 truncate text-xs text-foreground">
+                    Sponsor Formalica's LeetProof project
+                  </span>
+                  <iframe
+                    src={`${GITHUB_SPONSORS_URL}/button`}
+                    title="Sponsor formalica"
+                    height="32"
+                    width="114"
+                    className="shrink-0 rounded-md"
+                    style={{ border: 0, borderRadius: 10, filter: "sepia(1) hue-rotate(180deg) saturate(3) brightness(0.9)" }}
+                  ></iframe>
+                </div>
+              </div>
+
               <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
-                Bitcoin (BTC)
+                BTC
+              </label>
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2">
+                <code className="min-w-0 flex-1 truncate text-xs text-foreground">
+                  {BTC_ADDRESS}
+                </code>
+                <button
+                  onClick={() => handleCopyAddress(BTC_ADDRESS, "btc")}
+                  className="shrink-0 rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-white transition hover:bg-accent/90"
+                >
+                  {copied === "btc" ? "Copied!" : "Copy"}
+                </button>
+              </div>
+
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">
+                ETH 
               </label>
               <div className="flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2">
                 <code className="min-w-0 flex-1 truncate text-xs text-foreground">
-                  {FAKE_BTC_ADDRESS}
+                  {ETH_ADDRESS}
                 </code>
                 <button
-                  onClick={handleCopyAddress}
+                  onClick={() => handleCopyAddress(ETH_ADDRESS, "eth")}
                   className="shrink-0 rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-white transition hover:bg-accent/90"
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  {copied === "eth" ? "Copied!" : "Copy"}
                 </button>
               </div>
             </div>
-
-            <button
-              onClick={() => setShowDonate(false)}
-              className="mt-4 w-full rounded-md bg-surface/90 px-4 py-2 text-center text-sm text-muted transition hover:text-foreground"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
