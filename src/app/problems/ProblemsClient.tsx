@@ -140,6 +140,7 @@ export default function ProblemsClient() {
         q,
         difficulty,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
+        excludeTags: excludedTags.length > 0 ? excludedTags : undefined,
         page,
         limit,
         sortBy,
@@ -151,7 +152,7 @@ export default function ProblemsClient() {
       console.error("Error fetching problems:", error);
     }
     setLoading(false);
-  }, [db, q, difficulty, selectedTags, page, limit, sortBy, sortOrder]);
+  }, [db, q, difficulty, selectedTags, excludedTags, page, limit, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchProblems();
@@ -230,16 +231,13 @@ export default function ProblemsClient() {
   const perPageOptions = ["5", "10", "15", "20", "50"];
   const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
 
-  // Client-side completion and excluded tag filtering
+  // Client-side completion filtering (tag exclusion is applied server-side
+  // so pagination totals stay accurate)
   const filteredProblems = useMemo(() => {
-    let result = problemList;
-    if (excludedTags.length > 0) {
-      result = result.filter((p) => !p.tags.some((t) => excludedTags.includes(t)));
-    }
-    if (!completionFilter) return result;
-    if (completionFilter === "completed") return result.filter((p) => solvedIds.has(p.id));
-    return result.filter((p) => !solvedIds.has(p.id));
-  }, [problemList, completionFilter, solvedIds, excludedTags]);
+    if (!completionFilter) return problemList;
+    if (completionFilter === "completed") return problemList.filter((p) => solvedIds.has(p.id));
+    return problemList.filter((p) => !solvedIds.has(p.id));
+  }, [problemList, completionFilter, solvedIds]);
 
   return (
     <div className="mx-auto max-w-[90rem] px-4 pt-6 pb-4 sm:px-6 lg:px-8">

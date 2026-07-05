@@ -4,6 +4,7 @@ export interface ProblemsFilter {
   q?: string;
   difficulty?: Difficulty | "";
   tags?: string[];
+  excludeTags?: string[];
   page?: number;
   limit?: number;
   sortBy?: "sort_order" | "difficulty" | "title";

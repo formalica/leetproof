@@ -16,6 +16,7 @@ export class SupabaseDatabase implements IDatabase {
       q,
       difficulty,
       tags,
+      excludeTags,
       page = 1,
       limit = 10,
       sortBy = "sort_order",
@@ -26,6 +27,8 @@ export class SupabaseDatabase implements IDatabase {
     if (q) query = query.ilike("title", `%${q}%`);
     if (difficulty) query = query.eq("difficulty", difficulty);
     if (tags && tags.length > 0) query = query.contains("tags", tags);
+    if (excludeTags && excludeTags.length > 0)
+      query = query.not("tags", "ov", `{${excludeTags.join(",")}}`);
 
     // Difficulty sorting needs JS post-sort since DB sorts alphabetically
     if (sortBy === "difficulty") {

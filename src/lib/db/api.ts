@@ -13,6 +13,8 @@ export class ApiDatabase implements IDatabase {
     if (filter.difficulty) params.set("difficulty", filter.difficulty);
     if (filter.tags && filter.tags.length > 0)
       params.set("tags", filter.tags.join(","));
+    if (filter.excludeTags && filter.excludeTags.length > 0)
+      params.set("excludeTags", filter.excludeTags.join(","));
     if (filter.page) params.set("page", String(filter.page));
     if (filter.limit) params.set("limit", String(filter.limit));
     if (filter.sortBy) params.set("sortBy", filter.sortBy);

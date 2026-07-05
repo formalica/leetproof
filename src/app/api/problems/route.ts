@@ -18,10 +18,16 @@ export async function GET(request: NextRequest) {
   const tagsParam = params.get("tags");
   const tags = tagsParam ? tagsParam.split(",").filter(Boolean) : undefined;
 
+  const excludeTagsParam = params.get("excludeTags");
+  const excludeTags = excludeTagsParam
+    ? excludeTagsParam.split(",").filter(Boolean)
+    : undefined;
+
   const result = await db.getProblems({
     q: params.get("q") || undefined,
     difficulty: (params.get("difficulty") || "") as Difficulty | "",
     tags,
+    excludeTags,
     page: Number(params.get("page")) || 1,
     limit: Math.min(100, Number(params.get("limit")) || 10),
     sortBy:
