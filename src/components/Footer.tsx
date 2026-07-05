@@ -18,7 +18,7 @@ export default function Footer() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted">
             <a
-              href="https://discord.app/leetproof"
+              href="https://discord.gg/WE9yATM5h"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-foreground"
