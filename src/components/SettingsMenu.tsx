@@ -232,7 +232,7 @@ export default function SettingsMenu() {
                 </label>
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2">
                   <span className="min-w-0 flex-1 truncate text-xs text-foreground">
-                    Sponsor Formalica's LeetProof project
+                    Formalica's LeetProof project sponsorship
                   </span>
                   <iframe
                     src={`${GITHUB_SPONSORS_URL}/button`}
