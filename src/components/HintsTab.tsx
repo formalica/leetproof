@@ -381,7 +381,7 @@ export default function HintsTab({ problemId, problemSlug }: HintsTabProps) {
               {editingPackId ? "Edit Hint Pack (YAML)" : "Add Hint Pack (YAML)"}
             </h3>
             <a
-              href="https://github.com/nnarek/leetproof/blob/main/AGENTS.md#hints-system"
+              href="https://github.com/formalica/leetproof/blob/main/AGENTS.md#hints-system"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-accent hover:underline"

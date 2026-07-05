@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const DISCORD_URL = "https://discord.gg/WE9yATM5h";
-const GITHUB_ISSUES_URL = "https://github.com/nnarek/leetproof/issues/new";
+const GITHUB_ISSUES_URL = "https://github.com/formalica/leetproof/issues/new";
 const GITHUB_CONTRIBUTE_URL =
-  "https://github.com/nnarek/leetproof/tree/main/problems";
+  "https://github.com/formalica/leetproof/tree/main/problems";
 const LEAN_LEARN_URL = "https://lean-lang.org/learn/";
 
 // Placeholder address — more donation options will be added later.

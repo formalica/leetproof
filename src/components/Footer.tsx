@@ -34,7 +34,7 @@ export default function Footer() {
               X
             </a>
             <a
-              href="https://github.com/nnarek/leetproof"
+              href="https://github.com/formalica/leetproof"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-foreground"
