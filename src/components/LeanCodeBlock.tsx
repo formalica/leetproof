@@ -15,7 +15,6 @@ interface LeanCodeBlockProps {
 
 export default function LeanCodeBlock({ code, inline }: LeanCodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  const [hovered, setHovered] = useState(false);
 
   const highlighted = useMemo(() => {
     try {
@@ -47,14 +46,10 @@ export default function LeanCodeBlock({ code, inline }: LeanCodeBlockProps) {
   };
 
   const content = (
-    <div
-      className="relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="relative group">
       <button
         onClick={handleCopy}
-        className={`absolute top-1 right-1 z-10 rounded bg-zinc-700 hover:bg-zinc-600 px-1.5 py-0.5 text-[10px] text-zinc-300 transition-opacity ${hovered || copied ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className={`absolute top-1 right-1 z-10 select-none rounded bg-zinc-700 hover:bg-zinc-600 px-1.5 py-0.5 text-[10px] text-zinc-300 transition-opacity pointer-events-none group-hover:pointer-events-auto ${copied ? "opacity-100 pointer-events-auto" : "opacity-0 group-hover:opacity-100"}`}
       >
         {copied ? "Copied!" : "Copy"}
       </button>
