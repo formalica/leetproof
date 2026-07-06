@@ -11,7 +11,7 @@ verifier_code: |
 
   #check (fib_generating_function : {R : Type _} -> [Field R] ->
       PowerSeries.mk (fun n => (Nat.fib n : R)) =
-      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries R)⁻¹)
+      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2)⁻¹)
 
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``fib_generating_function
@@ -27,7 +27,7 @@ starter_code: |
 
   theorem fib_generating_function {R : Type*} [Field R] : 
       PowerSeries.mk (fun n => (Nat.fib n : R)) =
-      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries R)⁻¹ := by
+      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2)⁻¹ := by
     sorry
 ---
 
