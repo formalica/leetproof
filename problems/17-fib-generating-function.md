@@ -9,9 +9,9 @@ verifier_code: |
 
   {{SOLUTION}}
 
-  #check (fib_generating_function :
-      PowerSeries.mk (fun n => (Nat.fib n : ℚ)) =
-      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries ℚ)⁻¹)
+  #check (fib_generating_function : {R : Type _} -> [Field R] ->
+      PowerSeries.mk (fun n => (Nat.fib n : R)) =
+      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries R)⁻¹)
 
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``fib_generating_function
@@ -25,9 +25,9 @@ verifier_code: |
 starter_code: |
   import Mathlib
 
-  theorem fib_generating_function :
-      PowerSeries.mk (fun n => (Nat.fib n : ℚ)) =
-      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries ℚ)⁻¹ := by
+  theorem fib_generating_function {R : Type*} [Field R] : 
+      PowerSeries.mk (fun n => (Nat.fib n : R)) =
+      PowerSeries.X * (1 - PowerSeries.X - PowerSeries.X ^ 2 : PowerSeries R)⁻¹ := by
     sorry
 ---
 
@@ -37,7 +37,7 @@ A classical result in combinatorics is that the **ordinary generating function**
 
 $$\sum_{n=0}^{\infty} F_n \, x^n = \frac{x}{1 - x - x^2}$$
 
-Your task is to prove this identity in Lean, using `PowerSeries ℚ` to represent the formal power series $\sum_{n=0}^{\infty} F_n x^n$, encoded as `PowerSeries.mk (fun n => (Nat.fib n : ℚ))`.
+Your task is to prove this identity in Lean, using `PowerSeries R` to represent the formal power series $\sum_{n=0}^{\infty} F_n x^n$, encoded as `PowerSeries.mk (fun n => (Nat.fib n : R))`.
 
 <br>
 <details>
