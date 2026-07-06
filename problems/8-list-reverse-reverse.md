@@ -12,10 +12,10 @@ verifier_code: |
   #check (List.rev : {α : Type} → List α → List α)
   #check (rev_rev : (α : Type) → (xs : List α) → xs.rev.rev = xs)
 
-  example : List.rev ([] : List Nat) = [] := rfl
-  example : List.rev [1] = [1] := rfl
-  example : List.rev [1, 2, 3] = [3, 2, 1] := rfl
-  example : List.rev ["a", "b", "c"] = ["c", "b", "a"] := rfl
+  #guard List.rev ([] : List Nat) = [] 
+  #guard List.rev [1] = [1] 
+  #guard List.rev [1, 2, 3] = [3, 2, 1] 
+  #guard List.rev ["a", "b", "c"] = ["c", "b", "a"] 
 
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``rev_rev

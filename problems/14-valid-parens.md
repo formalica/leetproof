@@ -11,14 +11,15 @@ verifier_code: |
 
   #check (valid_parens_correct : (s : List Char) → (isValidParens s = true ↔ ValidParens s))
 
-  example : isValidParens [] = true := rfl
-  example : isValidParens ['(', ')'] = true := rfl
-  example : isValidParens ['(', ')', ')'] = false := rfl
-  example : isValidParens ['(', '(', ')', ')'] = true := rfl
-  example : isValidParens ['(', 'a', ')'] = true := rfl
-  example : isValidParens ['a', 'b'] = true := rfl
-  example : isValidParens ['(', ')', 'a'] = true := rfl
-  example : isValidParens ['(', '}', ')'] = true := rfl
+  #guard isValidParens [] = true 
+  #guard isValidParens ['(', ')'] = true 
+  #guard isValidParens ['(', ')', ')'] = false 
+  #guard isValidParens ['(', '(', ')', ')'] = true 
+  #guard isValidParens ['(', 'a', ')'] = true 
+  #guard isValidParens ['a', 'b'] = true 
+  #guard isValidParens ['(', ')', 'a'] = true 
+  #guard isValidParens ['(', '}', ')'] = true 
+  #guard isValidParens [')', 'a', '('] = false 
 
   #eval show Lean.Meta.MetaM Unit from do
     let thmName := ``valid_parens_correct
