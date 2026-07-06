@@ -5,7 +5,7 @@ difficulty: "medium"
 tags: ["number-theory", "power-series"]
 sort_order: 17
 verifier_code: |
-  import Mathlib
+  import Lean
 
   {{SOLUTION}}
 
