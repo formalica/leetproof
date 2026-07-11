@@ -1,0 +1,19 @@
+/* 
+Custom styles for the infoview.
+
+TODO: These might be superfluous if the styles from `vscode-lean4 were integrated 100% correctly.`
+*/
+
+.pre-wrap {
+  padding-bottom: 1.5em;
+}
+
+.font-size-code-smaller {
+  opacity: 0.6;
+}
+
+/* Hide "Save current config to default config" button */
+.saveConfigButton,
+.saveConfigLineBreak {
+  display: none;
+}
