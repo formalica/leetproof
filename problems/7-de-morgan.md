@@ -44,7 +44,7 @@ Prove that `¬(P ∨ Q) → ¬P ∧ ¬Q`.
 
 This is one direction of De Morgan's Law. Note that this direction is provable constructively (no need for classical logic).
 
-**Note:** You cannot use automated tactics like `apply?`, `grind`, or `simp`. Additionally, using the exact same alternative of this theorem from libraries is not allowed.
+**Note:** You cannot use classical axioms and automated tactics like `apply?`, `grind`, or `simp`. Additionally, using the exact same alternative of this theorem from libraries is not allowed.
 
 <br>
 <details>
