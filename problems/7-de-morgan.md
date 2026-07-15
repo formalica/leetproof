@@ -60,6 +60,7 @@ This is one direction of De Morgan's Law. Note that this direction is provable c
 
 [Double Negation Elimination](/problems/double-neg-elim)  
 [Or is Commutative](/problems/or-commutative)  
-[And Introduction](/problems/and-introduction)
+[And Introduction](/problems/and-introduction)  
+[Excluded Middle is Irrefutable](/problems/excluded-middle-irrefutable)
 
 </details>
