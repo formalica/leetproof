@@ -36,10 +36,10 @@ starter_code: |
 
   def isValidParens (s : List Char) : Bool := sorry
 
-  example: isValidParens [] = true := by rfl
-  example: isValidParens ['(', ')', 'a'] = true := by rfl
-  example: isValidParens ['(', ')', ')'] = false := by rfl
-  example: isValidParens ['(','}',')'] = true := by rfl
+  example: isValidParens [] = true := by sorry
+  example: isValidParens ['(', ')', 'a'] = true := by sorry
+  example: isValidParens ['(', ')', ')'] = false := by sorry
+  example: isValidParens ['(','}',')'] = true := by sorry
 
   theorem valid_parens_correct : ∀ s, isValidParens s = true ↔ ValidParens s := by
     sorry
