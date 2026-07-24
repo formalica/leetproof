@@ -17,11 +17,11 @@ verifier_code: |
   #guard f_impl 5 = 5
 
   #eval show Lean.Meta.MetaM Unit from do
-    let thmName := ``excluded_middle_irrefutable
+    let thmName := ``f_solution
     let used ← Lean.collectAxioms thmName
     if used.contains ``sorryAx then
       throwError m!"'{thmName}' proof uses sorry"
-    let allowedNames := [``propext]
+    let allowedNames := [``propext, ``Classical.choice, ``Quot.sound]
     let disallowed := used.filter (fun ax => !allowedNames.contains ax)
     if !disallowed.isEmpty then
       throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
