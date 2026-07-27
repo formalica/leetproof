@@ -501,7 +501,7 @@ function Lean4EditorCore({ initialCode, problemId, problemSlug, verifierCode, ve
             target="_blank"
             rel="noopener noreferrer"
             className="vscode-menu-btn"
-            title="Open in lean4web"
+            title="Open in live.lean-lang.org (new tab)"
           >
             Open↗
           </a>
