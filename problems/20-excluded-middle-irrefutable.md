@@ -2,7 +2,7 @@
 slug: "excluded-middle-irrefutable"
 title: "Excluded Middle is Irrefutable"
 difficulty: "easy"
-tags: ["logic"]
+tags: ["logic", "decidability"]
 sort_order: 20
 verifier_code: |
   import Lean
