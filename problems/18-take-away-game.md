@@ -51,34 +51,24 @@ verifier_code: |
 starter_code: |
   import Mathlib
 
-  -- This proposition holds iff the players move according to their
-  -- `players_strategies` functions, and the player with id `winner` wins
-  -- at the end of the game.
   inductive ValidGameFlow : (players_strategies : Vector (Nat → Finset.Icc 1 3) 2) →
                             (initial_stones : Nat) →
                             (turn winner : Fin 2) → Prop where
     -- TODO: implement the constructors describing valid game moves
 
-  -- With `0` stones and player `0` to move, player `0` has no valid move and
   -- player `1` wins — regardless of what either player's strategy is.
   theorem game_0 (f s : Nat → Finset.Icc 1 3) :
       ValidGameFlow #v[f, s] (initial_stones := 0) (turn := 0) (winner := 1) := by
     sorry
 
-  -- The symmetric statement of `game_0`, with the roles of the players swapped.
   theorem game_1 (f s : Nat → Finset.Icc 1 3) :
       ValidGameFlow #v[f, s] (initial_stones := 0) (turn := 1) (winner := 0) := by
     sorry
 
-  -- With `1` stone and player `0` to move, if player `0`'s strategy always takes
-  -- exactly `1` stone, player `0` wins immediately — regardless of player `1`'s
-  -- strategy (since the game ends before player `1` ever moves).
   theorem game_2 (s : Nat → Finset.Icc 1 3) :
       ValidGameFlow #v[fun n => ⟨1, by decide⟩, s] (initial_stones := 1) (turn := 0) (winner := 0) := by
     sorry
 
-  -- With `2` stones, if player `0` takes `1` stone when there's an odd number
-  -- left and player `1` always takes `1` stone, then player `1` ends up winning.
   theorem game_3 :
       ValidGameFlow #v[fun n => ⟨1 + n % 2, by grind⟩, fun n => ⟨1, by decide⟩]
         (initial_stones := 2) (turn := 0) (winner := 1) := by
