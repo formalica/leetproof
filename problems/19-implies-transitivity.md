@@ -3,7 +3,7 @@ slug: "implies-transitivity"
 title: "Implies Transitivity"
 difficulty: "easy"
 tags: ["basics", "logic"]
-sort_order: 3
+sort_order: 19
 verifier_code: |
   import Lean
 

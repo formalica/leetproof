@@ -3,7 +3,7 @@ slug: "the-guards-of-heaven-and-hell"
 title: "The Guards of Heaven and Hell"
 difficulty: "medium"
 tags: ["logic", "riddle"]
-sort_order: 24
+sort_order: 3
 verifier_code: |
   import Lean
 

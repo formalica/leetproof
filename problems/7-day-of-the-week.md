@@ -3,7 +3,7 @@ slug: "day-of-the-week"
 title: "Day of the Week"
 difficulty: "medium"
 tags: ["number-theory", "arithmetic", "program-verification"]
-sort_order: 19
+sort_order: 7
 verifier_code: |
   import Lean
 

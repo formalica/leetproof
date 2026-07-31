@@ -3,7 +3,7 @@ slug: "list-reverse-reverse"
 title: "List Reverse Reverse"
 difficulty: "medium"
 tags: ["list", "induction", "program-verification"]
-sort_order: 8
+sort_order: 17
 verifier_code: |
   import Lean
 

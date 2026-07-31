@@ -2,8 +2,8 @@
 slug: "fib-generating-function"
 title: "Fibonacci Generating Function"
 difficulty: "medium"
-tags: ["number-theory", "power-series"]
-sort_order: 17
+tags: ["number-theory", "series"]
+sort_order: 8
 verifier_code: |
   import Lean
 

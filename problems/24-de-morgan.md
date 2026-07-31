@@ -3,7 +3,7 @@ slug: "de-morgan"
 title: "De Morgan's Law"
 difficulty: "easy"
 tags: ["logic"]
-sort_order: 7
+sort_order: 24
 verifier_code: |
   import Lean
 
