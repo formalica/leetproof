@@ -9,6 +9,10 @@ verifier_code: |
 
   {{SOLUTION}}
 
+  #check (CollatzTerminates.one : CollatzTerminates 1)
+  #check (CollatzTerminates.even : ∀ n, CollatzTerminates n → CollatzTerminates (2*n))
+  #check (CollatzTerminates.odd : ∀ n, CollatzTerminates (3*n+1) → CollatzTerminates n)
+
   #check (collatz_2 : CollatzTerminates 2)
   #check (collatz_3 : CollatzTerminates 3)
   #check (collatz_1412987847 : CollatzTerminates 1412987847)
@@ -24,7 +28,9 @@ verifier_code: |
         throwError m!"'{thmName}' uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   inductive CollatzTerminates : Nat → Prop where
-   -- TODO implement
+    | one : CollatzTerminates 1
+    | even n : CollatzTerminates n → CollatzTerminates (2*n)
+    | odd n : CollatzTerminates (3*n+1) → CollatzTerminates n
 
   theorem collatz_2 : CollatzTerminates 2 := by
     sorry
@@ -42,14 +48,7 @@ $$f(n) = \begin{cases} n / 2 & \text{if } n \text{ is even} \\ 3n + 1 & \text{if
 
 until we reach $1$. The **Collatz conjecture** (also known as the $3n+1$ problem) states that this sequence always eventually reaches $1$ — but it remains unproven for all natural numbers!
 
-Your tasks:
-
-1. **Define** the inductive predicate `CollatzTerminates : Nat → Prop` that captures when a starting number eventually reaches $1$ under Collatz iteration.
-
-2. **Prove** termination for three specific numbers:
-   - `collatz_2 : CollatzTerminates 2`
-   - `collatz_3 : CollatzTerminates 3`
-   - `collatz_1412987847 : CollatzTerminates 1412987847`
+Your task is to prove termination for three specific numbers: `2`, `3`, and `1412987847`.
 
 The small cases can be proved by directly applying your constructors. For the large number, this tactic will not scale, so consider other approaches.
 
