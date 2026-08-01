@@ -40,15 +40,15 @@ starter_code: |
 
   def UnorderedPair.mk {α : Type} (u v : α) : UnorderedPair α := sorry
 
-  def UnorderedPair.sum [AddCommMagma α] (p : UnorderedPair α) : α :=
+  def UnorderedPair.sum {α : Type} [AddCommMagma α] (p : UnorderedPair α) : α :=
     sorry
 
-  theorem UnorderedPair.sum_correct [AddCommMagma α] (u v : α) :
+  theorem UnorderedPair.sum_correct {α : Type} [AddCommMagma α] (u v : α) :
       UnorderedPair.sum (UnorderedPair.mk u v) = u + v := by
     sorry
 
-  theorem UnorderedPair.fst_does_not_exist :
-      ¬ ∀ (α : Type), ∃ (f : UnorderedPair α → α), ∀ (u v : α), u ≠ v → f (mk u v) = u := by
+  theorem UnorderedPair.fst_does_not_exist {α : Type} [Nontrivial α] : 
+      ¬ ∃ (f : UnorderedPair α → α), ∀ (u v : α), f (mk u v) = u := by
     sorry
 ---
 
@@ -59,4 +59,4 @@ Your tasks:
 1. **Define** `UnorderedPair.mk` - creates unordered pair from two elements.
 2. **Define** `UnorderedPair.sum` - must compute the sum of the two elements stored in an unordered pair.
 3. **Prove** `UnorderedPair.sum_correct`, showing that the sum of the pair created from `u` and `v` is `u + v`.
-4. **Prove** `UnorderedPair.fst_does_not_exist`: there is no function so that, we can always recover first value of pair if pair is created from two distinct values.
+4. **Prove** `UnorderedPair.fst_does_not_exist`: there is no function so that, we can always recover first value of pair.
