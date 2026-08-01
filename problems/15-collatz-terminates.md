@@ -11,7 +11,7 @@ verifier_code: |
 
   #check (CollatzTerminates.one : CollatzTerminates 1)
   #check (CollatzTerminates.even : ∀ n, CollatzTerminates n → CollatzTerminates (2*n))
-  #check (CollatzTerminates.odd : ∀ n, CollatzTerminates (3*n+1) → CollatzTerminates n)
+  #check (CollatzTerminates.odd : ∀ n, Odd n → CollatzTerminates (3*n+1) → CollatzTerminates n)
 
   #check (collatz_2 : CollatzTerminates 2)
   #check (collatz_3 : CollatzTerminates 3)
@@ -27,10 +27,12 @@ verifier_code: |
       if !disallowed.isEmpty then
         throwError m!"'{thmName}' uses disallowed axioms: {disallowed.toList}"
 starter_code: |
+  import Mathlib.Algebra.Ring.Parity
+  
   inductive CollatzTerminates : Nat → Prop where
     | one : CollatzTerminates 1
     | even n : CollatzTerminates n → CollatzTerminates (2*n)
-    | odd n : CollatzTerminates (3*n+1) → CollatzTerminates n
+    | odd n (h : Odd n) : CollatzTerminates (3*n+1) → CollatzTerminates n
 
   theorem collatz_2 : CollatzTerminates 2 := by
     sorry
