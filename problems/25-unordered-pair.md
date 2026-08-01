@@ -59,4 +59,4 @@ Your tasks:
 1. **Define** `UnorderedPair.mk` - creates unordered pair from two elements.
 2. **Define** `UnorderedPair.sum` - must compute the sum of the two elements stored in an unordered pair.
 3. **Prove** `UnorderedPair.sum_correct`, showing that the sum of the pair created from `u` and `v` is `u + v`.
-4. **Prove** `UnorderedPair.fst_does_not_exist`: there is no function so that, we can always recover first value of pair.
+4. **Prove** `UnorderedPair.fst_does_not_exist`: there is no function which can always recover first value of pair.
