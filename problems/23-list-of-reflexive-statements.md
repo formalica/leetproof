@@ -2,7 +2,7 @@
 slug: "list-of-reflexive-statements"
 title: "List of Reflexive Statements"
 difficulty: "medium"
-tags: ["logic", "riddle"]
+tags: ["logic", "puzzle"]
 sort_order: 23
 verifier_code: |
   import Lean
