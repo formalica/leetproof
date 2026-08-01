@@ -11,7 +11,7 @@ verifier_code: |
 
   #check (CollatzTerminates.one : CollatzTerminates 1)
   #check (CollatzTerminates.even : ∀ n, CollatzTerminates n → CollatzTerminates (2*n))
-  #check (CollatzTerminates.odd : ∀ n, Odd n → CollatzTerminates (3*n+1) → CollatzTerminates n)
+  #check (CollatzTerminates.odd : ∀ n, CollatzTerminates (3*(2*n+1)+1) → CollatzTerminates (2*n+1))
 
   #check (collatz_2 : CollatzTerminates 2)
   #check (collatz_3 : CollatzTerminates 3)
@@ -28,11 +28,11 @@ verifier_code: |
         throwError m!"'{thmName}' uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   import Mathlib.Algebra.Ring.Parity
-  
+
   inductive CollatzTerminates : Nat → Prop where
     | one : CollatzTerminates 1
     | even n : CollatzTerminates n → CollatzTerminates (2*n)
-    | odd n (h : Odd n) : CollatzTerminates (3*n+1) → CollatzTerminates n
+    | odd n : CollatzTerminates (3*(2*n+1)+1) → CollatzTerminates (2*n+1)
 
   theorem collatz_2 : CollatzTerminates 2 := by
     sorry
@@ -55,6 +55,15 @@ Your task is to prove termination for three specific numbers: `2`, `3`, and `141
 The small cases can be proved by directly applying your constructors. For the large number, this tactic will not scale, so consider other approaches.
 
 <br>
+
+<details>
+<summary>Note on formalization</summary>
+
+`3*(2*n+1)+1` is always even so in the next step it will be divided by two and `CollatzTerminates (3*(2*n+1)+1)` will become `CollatzTerminates (3*n+2)`.
+Defining `CollatzTerminates.odd : ∀ n, CollatzTerminates (3*n+2) → CollatzTerminates (2*n+1)` is more simple, but we just keep the original form to make it clear that we are strictly following the Collatz function. You can prove it as lemma and use in your proof.
+
+</details>
+
 <details>
 <summary>References</summary>
 
