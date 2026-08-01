@@ -16,9 +16,8 @@ verifier_code: |
     (UnorderedPair.sum : UnorderedPair α → α))
   #check (UnorderedPair.sum_correct : ∀ {α : Type} [AddCommMagma α] (u v : α),
     UnorderedPair.sum (UnorderedPair.mk u v) = u + v)
-  #check (UnorderedPair.fst_does_not_exist :
-    ¬ ∀ (α : Type), ∃ (f : UnorderedPair α → α), ∀ (u v : α),
-      u ≠ v → f (UnorderedPair.mk u v) = u)
+  #check (UnorderedPair.fst_does_not_exist : ∀ {α : Type} [Nontrivial α],
+    ¬ ∃ (f : UnorderedPair α → α), ∀ (u v : α), f (UnorderedPair.mk u v) = u)
 
   -- to make sure that function is computable
   #guard UnorderedPair.sum (UnorderedPair.mk 1 2) = 3
@@ -35,6 +34,7 @@ verifier_code: |
         throwError m!"'{declName}' uses disallowed axioms: {disallowed.toList}"
 starter_code: |
   import Mathlib.Algebra.Group.Defs
+  import Mathlib.Logic.Nontrivial.Defs
 
   def UnorderedPair (α : Type) : Type := sorry
 
