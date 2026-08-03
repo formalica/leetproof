@@ -42,12 +42,12 @@ export default function Footer() {
               GitHub
             </a>
 
-            <Link href="/privacy" className="transition hover:text-foreground">
+            {/* <Link href="/privacy" className="transition hover:text-foreground">
               Privacy Policy
             </Link>
             <Link href="/terms" className="transition hover:text-foreground">
               Terms of Service
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

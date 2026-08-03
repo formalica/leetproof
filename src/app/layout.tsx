@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import logo from "./logo.png";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -16,9 +17,40 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LeetProof — Theorem Proving Platform",
+  metadataBase: new URL("https://www.leetproof.org"),
+  title: "LeetProof - Theorem Proving Platform",
   description:
     "Sharpen your Lean 4 skills by proving theorems and verifying code. Share solutions and hints with the community.",
+  openGraph: {
+    title: "LeetProof - Theorem Proving Platform",
+    description:
+      "Sharpen your Lean 4 skills by proving theorems and verifying code. Share solutions and hints with the community.",
+    url: "/",
+    siteName: "LeetProof",
+    images: [
+      {
+        url: logo.src,
+        width: logo.width,
+        height: logo.height,
+        alt: "LeetProof",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "LeetProof - Theorem Proving Platform",
+    description:
+      "Sharpen your Lean 4 skills by proving theorems and verifying code. Share solutions and hints with the community.",
+    images: [
+      {
+        url: logo.src,
+        width: logo.width,
+        height: logo.height,
+        alt: "LeetProof",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
