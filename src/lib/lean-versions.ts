@@ -7,8 +7,10 @@ export const DEFAULT_VERSION = 'mathlib-v4.28.0';
 
 export type LeanVersion = typeof LEAN_VERSIONS[number]['value'];
 
+
 export function getWssUrl(version: LeanVersion): string {
-  return `wss://live.lean-lang.org/websocket/${version}`;
+  const base = process.env.NEXT_PUBLIC_LEAN4WEB_WS_URL || "";
+  return `${base.replace(/\/+$/, '')}/websocket/${version}`;
 }
 
 export function getProjectFolder(version: LeanVersion): string {

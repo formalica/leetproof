@@ -5,7 +5,7 @@
 #   NEXT_PUBLIC_SUPABASE_ANON_KEY  — Your Supabase anonymous/public key
 #
 # Optional secrets:
-#   NEXT_PUBLIC_LEAN4WEB_URL       — Lean4Web instance URL (default: https://live.lean-lang.org)
+#   NEXT_PUBLIC_LEAN4WEB_WS_URL    — Base WebSocket URL for the self-hosted lean4web server used by getWssUrl()
 #
 # Enable GitHub Pages:
 #   Settings → Pages → Source → GitHub Actions
@@ -48,7 +48,7 @@ jobs:
           NEXT_PUBLIC_LEETPROOF_SERVERLESS: "true"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_LEAN4WEB_URL: ${{ secrets.NEXT_PUBLIC_LEAN4WEB_URL }}
+          NEXT_PUBLIC_LEAN4WEB_WS_URL: ${{ secrets.NEXT_PUBLIC_LEAN4WEB_WS_URL }}
           # For project repos, set to /<repo-name>. For user repos, leave empty.
           NEXT_PUBLIC_BASE_PATH: ${{ vars.NEXT_PUBLIC_BASE_PATH }}
         run: npm run build:static

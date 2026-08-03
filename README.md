@@ -94,7 +94,7 @@ Set these environment variables before building:
 
 - `NEXT_PUBLIC_LEETPROOF_SERVERLESS=true`
 - `NEXT_PUBLIC_BASE_PATH=/leetproof` for project pages on GitHub Pages, or leave it blank for a user/organization site
-- `NEXT_PUBLIC_LEAN4WEB_URL` pointing at your separate lean4web server
+- `NEXT_PUBLIC_LEAN4WEB_WS_URL` base WebSocket URL for the self-hosted lean4web instance used by the editor (e.g. `ws://your-host:8080`); `/websocket/<version>` is appended automatically
 
 Build the static export:
 
