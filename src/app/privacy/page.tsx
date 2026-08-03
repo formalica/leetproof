@@ -96,13 +96,11 @@ export default function PrivacyPolicyPage() {
             identity when you sign in.
           </li>
           <li>
-            <strong>live.lean-lang.org</strong> — the public Lean 4 language
-            server used to check the code you write in the in-browser editor.
-            Code you run or verify is transmitted directly from your browser
-            to this third-party server over a WebSocket connection so it can
-            be type-checked. This server is operated by the Lean community,
-            not by LeetProof, and is subject to its own operator&apos;s
-            handling of the data it receives.
+            <strong>Self-hosted lean4web instance</strong> — the Lean 4
+            language server used to check the code you write in the
+            in-browser editor. Code you run or verify is transmitted directly
+            from your browser to this server over a WebSocket connection so it
+            can be type-checked. This instance is operated by LeetProof.
           </li>
         </ul>
         <p>

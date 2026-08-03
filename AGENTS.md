@@ -19,12 +19,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS v4 |
 | Backend/DB | Supabase (PostgreSQL, Auth, RLS) — **serverless, no custom server** |
 | Auth | Supabase Auth with Google OAuth |
-| Code Editor | **lean4monaco** directly embedded (connects to live.lean-lang.org) |
+| Code Editor | **lean4monaco** directly embedded (connects to a self-hosted lean4web instance) |
 | Markdown | react-markdown + remark-gfm for problem descriptions |
 
 ## Key Architecture Decisions
 
-1. **No running backend server** — All data comes from Supabase (serverless Postgres + Auth). The code editor connects directly to the remote Lean server at `wss://live.lean-lang.org`.
+1. **No running backend server** — All data comes from Supabase (serverless Postgres + Auth). The code editor connects directly to a self-hosted lean4web instance's Lean server (see `NEXT_PUBLIC_LEAN4WEB_WS_URL` in [`src/lib/lean-versions.ts`](src/lib/lean-versions.ts)).
 2. **lean4monaco embedded directly** — The editor uses the `lean4monaco` npm package which provides Monaco editor + Lean 4 LSP integration. No iframe. Code is persisted in browser `localStorage` (key: `leetproof:editor-code`). See `src/components/Lean4EditorInner.tsx`.
 3. **lean4web source files in `src/lib/lean4web/`** — Adapted lean4web components and utilities are in a separate directory for easy syncing with upstream [lean4web](https://github.com/leanprover-community/lean4web) changes.
 4. **Problems stored in Supabase** — But authored as markdown files in `/problems/` with YAML frontmatter. A seed script (`scripts/seed-problems.ts`) loads them into the DB.
@@ -145,8 +145,8 @@ The editor uses **lean4monaco** (from npm) which provides Monaco editor + Lean 4
 - Theme can also be manually set via Settings popup
 
 **WebSocket connection:**
-- Hardcoded to `wss://live.lean-lang.org/websocket/MathlibDemo`
-- No custom Lean server needed (uses the public live.lean-lang.org instance)
+- Connects to a self-hosted lean4web instance's WebSocket, configured via `NEXT_PUBLIC_LEAN4WEB_WS_URL` (see `getWssUrl()` in `src/lib/lean-versions.ts`)
+- No public Lean server dependency — the self-hosted instance is operated by LeetProof
 
 **Static assets:**
 - Run `npm run copy:lean-assets` to copy infoview files and fonts from `node_modules/` to `public/`

@@ -25,7 +25,7 @@ interface Lean4EditorProps {
 
 /**
  * Lean 4 editor powered by lean4monaco (same engine as lean4web).
- * Connects to the remote Lean server at live.lean-lang.org via WebSocket.
+ * Connects to a self-hosted lean4web instance's Lean server via WebSocket.
  * Code is persisted per-problem in localStorage.
  */
 export default function Lean4Editor({ code, problemId, problemSlug, verifierCode }: Lean4EditorProps) {

@@ -25,7 +25,7 @@
 - The editor is embedded directly using `lean4monaco` (not via iframe)
 - lean4web source files are in `src/lib/lean4web/` for easy syncing with upstream
 - Code is persisted in browser `localStorage` (key: `leetproof:editor-code`)
-- Editor connects to remote WebSocket at `wss://live.lean-lang.org/websocket/MathlibDemo`
+- Editor connects to a self-hosted lean4web instance's WebSocket, configured via `NEXT_PUBLIC_LEAN4WEB_WS_URL`
 - Run `npm run copy:lean-assets` after `npm install` to copy static infoview/font files
 
 ## Do NOT

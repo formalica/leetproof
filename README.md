@@ -18,7 +18,7 @@ Sharpen your formal verification skills by proving theorems and verifying code i
 - Node.js 18+
 - A [Supabase](https://supabase.com/) project
 - Optional: a [Firebase](https://firebase.google.com/) project if you want to use Firestore for problem data
-- A lean4web instance (or use `https://live.lean-lang.org`)
+- A self-hosted [lean4web](https://github.com/leanprover-community/lean4web) instance (or use the public `https://live.lean-lang.org` for testing)
 
 ### 2. Setup
 

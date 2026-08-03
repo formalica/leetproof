@@ -76,14 +76,13 @@ export default function TermsOfServicePage() {
         <h2>5. Third-Party Services</h2>
         <p>
           The Service integrates with third-party providers, including
-          Supabase (database and authentication), Google (sign-in), and the
-          public Lean 4 language server at{" "}
-          <code>live.lean-lang.org</code>, which is used to check code you
-          write in the in-browser editor. Code you choose to run or verify is
-          sent directly from your browser to this third-party server. These
-          third-party services are governed by their own terms and privacy
-          policies, and LeetProof is not responsible for their availability,
-          content, or practices.
+          Supabase (database and authentication) and Google (sign-in), as
+          well as a self-hosted lean4web Lean 4 language server operated by
+          LeetProof, which is used to check code you write in the in-browser
+          editor. Code you choose to run or verify is sent directly from your
+          browser to this server. The third-party services are governed by
+          their own terms and privacy policies, and LeetProof is not
+          responsible for their availability, content, or practices.
         </p>
 
         <h2>6. Intellectual Property</h2>
