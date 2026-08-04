@@ -3,7 +3,7 @@ slug: "false-implies-anything"
 title: "False Implies Anything"
 difficulty: "easy"
 tags: ["basics", "logic"]
-sort_order: 5
+sort_order: 7
 verifier_code: |
   import Lean
 

@@ -3,7 +3,7 @@ slug: "day-of-the-week"
 title: "Day of the Week"
 difficulty: "medium"
 tags: ["number-theory", "arithmetic", "program-verification"]
-sort_order: 7
+sort_order: 5
 verifier_code: |
   import Lean
 
@@ -58,7 +58,7 @@ starter_code: |
     sorry
 ---
 
-Given a valid date as `day`/`month`/`year`, return the day of the week. Jan 1, year 1 is a **Monday**. `year ≥ 1`, and weekdays are numbered `0`–`6` starting from Monday.
+Given a valid date as `day`/`month`/`year` and you should determine the day of the week. Jan 1, year 1 is a **Monday**. `year ≥ 1`, and weekdays are numbered `0`–`6` starting from Monday.
 
 Your tasks:
 
