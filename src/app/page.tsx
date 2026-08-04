@@ -62,16 +62,8 @@ export default function HomePage() {
               <strong className="text-foreground">verified programs</strong>.
             </p>
           </div>
-        </div>
-      </section>
 
-      {/* Features */}
-      <section className="border-t border-border py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-16 text-center text-3xl font-bold text-foreground">
-            How It Works
-          </h2>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {/* Feature 1 */}
             <div className="rounded-xl border border-border bg-surface/50 p-8">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent">
@@ -120,10 +112,9 @@ export default function HomePage() {
                 2. Write Your Proof
               </h3>
               <p className="text-sm text-muted">
-                Use the built-in Lean 4 editor powered by{" "}
-                <strong className="text-foreground">lean4web</strong>. Get
-                real-time feedback, goal states, and error messages as you
-                construct your proof.
+                Use the built-in code editor right in your browser — no
+                install required. Get real-time feedback, goal states, and
+                error messages as you construct your proof.
               </p>
             </div>
 
@@ -153,6 +144,34 @@ export default function HomePage() {
                 other users.
               </p>
             </div>
+
+            {/* Feature 4 */}
+            <div className="rounded-xl border border-border bg-surface/50 p-8">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-3.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a4 4 0 10-4-4"
+                  />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
+                4. Learn & Share
+              </h3>
+              <p className="text-sm text-muted">
+                Browse others&apos; <strong className="text-foreground">solutions</strong>{" "}
+                for different approaches, or unlock progressive{" "}
+                <strong className="text-foreground">hint packs</strong> when
+                you&apos;re stuck — without spoiling the full proof.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -163,23 +182,31 @@ export default function HomePage() {
           <h2 className="mb-12 text-center text-3xl font-bold text-foreground">
             Problem Categories
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 name: "Logic & Propositional",
-                desc: "And, Or, Implies, Not, Iff",
+                desc: "And, Or, Implies, Not, classical reasoning, type theory",
               },
               {
-                name: "Natural Numbers",
-                desc: "Induction, recursion, arithmetic",
+                name: "Algebra & Number Theory",
+                desc: "Natural numbers, arithmetic",
               },
               {
-                name: "Algebraic Structures",
-                desc: "Groups, rings, monoids",
+                name: "Data Structures & Functions",
+                desc: "Lists, Strings, Trees, higher-order functions",
+              },
+              {
+                name: "Math Puzzles & Games",
+                desc: "Logic puzzles, game theory, combinatorics",
+              },
+              {
+                name: "Set Theory & Geometry",
+                desc: "Set equalities, geometric reasoning",
               },
               {
                 name: "Program Verification",
-                desc: "Verify correctness of algorithms",
+                desc: "Correctness proofs for algorithms and programs",
               },
             ].map((cat) => (
               <div
@@ -201,14 +228,28 @@ export default function HomePage() {
             Ready to prove something?
           </h2>
           <p className="mt-4 text-lg text-muted">
-            Sign in with Google and start solving problems today.
+            Sign in with Google to save submissions and share solutions and
+            hint packs with the community — it&apos;s free.
           </p>
-          <Link
-            href="/problems"
-            className="mt-8 inline-block rounded-lg bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition hover:bg-accent/90"
-          >
-            Browse Problems
-          </Link>
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <Link
+              href="/problems"
+              className="inline-block rounded-lg bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition hover:bg-accent/90"
+            >
+              Browse Problems
+            </Link>
+            <a
+              href="https://github.com/formalica/leetproof"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-lg border border-border px-8 py-3 text-sm font-semibold text-muted transition hover:border-accent/50 hover:text-foreground"
+            >
+              View on GitHub
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-muted">
+            LeetProof is free and open source.
+          </p>
         </div>
       </section>
     </div>
