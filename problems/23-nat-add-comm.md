@@ -3,7 +3,7 @@ slug: "nat-add-comm"
 title: "Addition is Commutative"
 difficulty: "easy"
 tags: ["natural-numbers", "induction", "arithmetic"]
-sort_order: 12
+sort_order: 23
 verifier_code: |
   import Lean
 
