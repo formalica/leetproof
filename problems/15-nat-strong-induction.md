@@ -3,7 +3,7 @@ slug: "nat-strong-induction"
 title: "Strong Induction Principle"
 difficulty: "medium"
 tags: ["natural-numbers", "induction"]
-sort_order: 10
+sort_order: 15
 verifier_code: |
   import Lean
 

@@ -3,7 +3,7 @@ slug: "collatz-terminates"
 title: "Collatz Terminates"
 difficulty: "medium"
 tags: ["induction", "number-theory", "decidability"]
-sort_order: 15
+sort_order: 10
 verifier_code: |
   import Lean
 
