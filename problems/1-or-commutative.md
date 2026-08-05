@@ -13,7 +13,7 @@ verifier_code: |
 
   #eval show Lean.CoreM Unit from do
     let thmName := ``or_commutative
-    let forbiddenName := ``Or.comm
+    let forbiddenName := ``Or.symm
     let env ← Lean.getEnv
     if let some decl := env.find? thmName then
       let proofTerm? := match decl with
@@ -49,7 +49,7 @@ Prove that disjunction (logical OR) is commutative: `P ∨ Q → Q ∨ P`.
 <details>
 <summary>References</summary>
 
-[`Or.comm`](https://leanprover-community.github.io/mathlib4_docs/Init/Prelude.html#Or.comm)
+[`Or.symm`](https://lean-lang.org/doc/api/Init/Core.html#Or.symm)
 
 </details>
 
