@@ -11,16 +11,6 @@ verifier_code: |
 
   #check (de_morgan : (P Q : Prop) → ¬(P ∨ Q) → ¬P ∧ ¬Q)
 
-  #eval show Lean.Meta.MetaM Unit from do
-    let thmName := ``de_morgan
-    let used ← Lean.collectAxioms thmName
-    if used.contains ``sorryAx then
-      throwError m!"'{thmName}' proof uses sorry"
-    let allowedNames := [``propext]
-    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
-    if !disallowed.isEmpty then
-      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
-
   #eval show Lean.CoreM Unit from do
     let thmName := ``de_morgan
     let forbiddenName := ``not_or
@@ -33,6 +23,18 @@ verifier_code: |
       if let some proof := proofTerm? then
         if (proof.find? fun e => e.isConstOf forbiddenName).isSome then
           throwError s!"using {forbiddenName} is not allowed in {thmName}"
+
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``de_morgan
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
+
+
 starter_code: |
   theorem de_morgan (P Q : Prop) : ¬(P ∨ Q) → ¬P ∧ ¬Q := by
     sorry

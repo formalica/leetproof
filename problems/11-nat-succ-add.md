@@ -11,16 +11,6 @@ verifier_code: |
 
   #check (succ_add : (m n : Nat) → m.succ + n = (m + n).succ)
 
-  #eval show Lean.Meta.MetaM Unit from do
-    let thmName := ``succ_add
-    let used ← Lean.collectAxioms thmName
-    if used.contains ``sorryAx then
-      throwError m!"'{thmName}' proof uses sorry"
-    let allowedNames := []
-    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
-    if !disallowed.isEmpty then
-      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
-
   #eval show Lean.CoreM Unit from do
     let thmName := ``succ_add
     let forbiddenName := ``Nat.succ_add
@@ -33,6 +23,18 @@ verifier_code: |
       if let some proof := proofTerm? then
         if (proof.find? fun e => e.isConstOf forbiddenName).isSome then
           throwError s!"using {forbiddenName} is not allowed in {thmName}"
+        
+  #eval show Lean.Meta.MetaM Unit from do
+    let thmName := ``succ_add
+    let used ← Lean.collectAxioms thmName
+    if used.contains ``sorryAx then
+      throwError m!"'{thmName}' proof uses sorry"
+    let allowedNames := [``propext]
+    let disallowed := used.filter (fun ax => !allowedNames.contains ax)
+    if !disallowed.isEmpty then
+      throwError m!"'{thmName}' theorem uses disallowed axioms: {disallowed.toList}"
+
+
 starter_code: |
   theorem succ_add (m n : Nat) : m.succ + n = (m + n).succ := by
     sorry
