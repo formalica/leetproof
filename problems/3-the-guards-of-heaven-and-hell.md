@@ -64,7 +64,7 @@ You may ask **one** yes/no question to **one** guard.
 
 Your tasks:
 
-1. **Define** `question` — the truth value of the question you ask, **from the perspective of an honest person** (the liar's inversion is applied afterwards by `response`). It takes all the information the *guard* knows (it may depend on the guard you ask, on their language and doors).
+1. **Define** `question` — the truth value of the question you ask, **from the perspective of an honest person** (the liar's inversion is applied afterwards by `response`). It takes all the information the *guard* knows (it may depend on the guard you ask, on their language and doors). Example: **Does your door leads to Heaven?** question corresponds to `door_map guard_whom_you_ask = .Heaven`.
 2. **Define** `deduce` — deduce which door is kept by guard who responded to your question. It takes all the information you know: not the guard's type, not `response_map`, not `door_map`.
 3. **Prove** `question_exists`: your question always works — for every guard, every meaning of `Blah`/`Mlah`, and every arrangement of the doors.
 
