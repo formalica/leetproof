@@ -30,7 +30,7 @@ verifier_code: |
     for c in info.value.getUsedConstants do
       if !(allowed.contains c) then
         unless ← Lean.Meta.isInstance c do
-          # sometimes Lean automatically generates aux theorems, we need to skip all propositions  
+          -- sometimes Lean automatically generates aux theorems, we need to skip all propositions  
           let isProp ← match env.find? c with
             | some ci => Lean.Meta.isProp ci.type
             | none => pure false
