@@ -1,5 +1,5 @@
 ---
-slug: "22-find-function"
+slug: "find-function"
 title: "Find Function: f (f x + f y) = x + y"
 difficulty: "hard"
 tags: ["functions"]
