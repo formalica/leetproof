@@ -1,5 +1,5 @@
 ---
-slug: "27-integral-x-expx"
+slug: "integral-x-expx"
 title: "Integral: x * e^x"
 difficulty: "medium"
 tags: ["calculus", "integral"]
