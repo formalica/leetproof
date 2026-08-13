@@ -5,6 +5,7 @@ import Lean4Editor from "@/components/Lean4Editor";
 import ResizableProblemLayout from "@/components/ResizableProblemLayout";
 import ProblemTabs from "@/components/ProblemTabs";
 import type { Metadata } from "next";
+import logo from "../../../logo.png";
 
 // In static-export mode revalidate is ignored (pages are built once).
 // In server mode this enables ISR every 60 s.
@@ -12,6 +13,25 @@ export const revalidate = 60;
 
 interface ProblemPageProps {
   params: Promise<{ slug: string; tab?: string[] }>;
+}
+
+// Strips markdown syntax down to plain text and truncates at a word boundary
+// so social previews (Twitter/x.com, Teams, Slack, etc.) show clean text.
+function toPreviewDescription(markdown: string, maxLength = 160): string {
+  const plain = markdown
+    .replace(/```[\s\S]*?```/g, " ") // fenced code blocks
+    .replace(/`([^`]+)`/g, "$1") // inline code
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links
+    .replace(/^#+\s+/gm, "") // headings
+    .replace(/[*_>#-]/g, "") // remaining markdown markers
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (plain.length <= maxLength) return plain;
+  const truncated = plain.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
 }
 
 export async function generateStaticParams() {
@@ -41,9 +61,37 @@ export async function generateMetadata({
     };
   }
 
+  const title = `${problem.title} - LeetProof`;
+  const description = problem.description
+    ? toPreviewDescription(problem.description)
+    : "Solve a Lean 4 theorem proving problem";
+  const url = `/problems/${problem.slug}`;
+  const images = [
+    {
+      url: logo.src,
+      width: logo.width,
+      height: logo.height,
+      alt: "LeetProof",
+    },
+  ];
+
   return {
-    title: `${problem.title} - LeetProof`,
-    description: problem.description?.substring(0, 160) || "Solve a Lean 4 theorem proving problem",
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "LeetProof",
+      images,
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images,
+    },
   };
 }
 
