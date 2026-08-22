@@ -384,13 +384,13 @@ export default function ProblemsClient() {
             </div>
 
             {/* Problems table */}
-            <div className="relative w-full overflow-x-auto rounded-xl border border-border">
+            <div className="relative w-full overflow-x-auto ">
               {loading && problemList.length > 0 && (
                 <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-[1px]" />
               )}
               <table className="w-full table-fixed min-w-[600px]">
                 <thead>
-                  <tr className="border-b border-border bg-surface">
+                  <tr className="border-b border-border">
                     
                     <th className="w-12 px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       #
@@ -408,7 +408,7 @@ export default function ProblemsClient() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-border ">
                   {!loading && filteredProblems.length === 0 ? (
                     <tr>
                       <td
@@ -554,7 +554,7 @@ export default function ProblemsClient() {
 
           {/* Tag selector on the right */}
           <aside className="w-full lg:w-56 shrink-0 lg:self-start lg:mt-[3.25rem]">
-            <div className="rounded-xl border border-border bg-surface/30 p-4">
+            <div className="rounded-xl  border-border bg-surface/30 p-4">
               <h3 className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-muted">
                 Tags
               </h3>
