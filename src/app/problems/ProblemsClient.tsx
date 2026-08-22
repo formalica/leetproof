@@ -338,31 +338,34 @@ export default function ProblemsClient() {
                 <thead>
                   <tr className="border-b border-border">
                     
-                    <th
-                      onClick={() => handleSort("sort_order")}
-                      className="group w-12 cursor-pointer select-none px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
-                    >
-                      <span className="inline-flex items-center gap-1">
+                    <th className="w-12 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("sort_order")}
+                        className="group inline-flex cursor-pointer items-center gap-1 px-5 py-1 select-none"
+                      >
                         # <SortArrow field="sort_order" />
-                      </span>
+                      </button>
                     </th>
                     <th className="w-4 px-1 py-1 text-right text-xs font-medium uppercase tracking-wider text-muted">
                     </th>
-                    <th
-                      onClick={() => handleSort("title")}
-                      className="group w-auto cursor-pointer select-none px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
-                    >
-                      <span className="inline-flex items-center gap-1">
+                    <th className="w-auto py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("title")}
+                        className="group inline-flex cursor-pointer items-center gap-1 px-3 py-1 select-none"
+                      >
                         Title <SortArrow field="title" />
-                      </span>
+                      </button>
                     </th>
-                    <th
-                      onClick={() => handleSort("difficulty")}
-                      className="group w-23 cursor-pointer select-none px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
-                    >
-                      <span className="inline-flex items-center gap-1">
+                    <th className="w-23 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("difficulty")}
+                        className="group inline-flex cursor-pointer items-center gap-1 px-2 py-1 select-none"
+                      >
                         Difficulty <SortArrow field="difficulty" />
-                      </span>
+                      </button>
                     </th>
                     <th className="w-auto px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Tags
