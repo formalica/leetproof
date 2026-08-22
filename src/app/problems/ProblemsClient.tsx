@@ -244,7 +244,7 @@ export default function ProblemsClient() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-10">
           <div className="min-w-0 flex-1 lg:max-w-[60rem]"> {/* TABLE SIZE */}
             {/* Filters row — right controls are pinned; search area is flexible */}
-            <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
+            <div className="sticky left-0 -ml-4 mb-4 flex w-screen max-w-full flex-col gap-3 bg-background px-4 sm:-ml-6 sm:px-6 lg:relative lg:ml-0 lg:w-auto lg:flex-row lg:items-center lg:gap-3 lg:px-0">
               {/* Search */}
               <form onSubmit={handleSearch} className="flex min-w-0 flex-1 items-center gap-2">
                 <input
