@@ -46,9 +46,7 @@ export default function ProblemsClient() {
   const [solvedIds, setSolvedIds] = useState<Set<string>>(new Set());
   const [completionFilter, setCompletionFilter] = useState<"" | "completed" | "not_completed">("");
   const { user } = useAuth();
-  const [sortOpen, setSortOpen] = useState(false);
   const [perPageOpen, setPerPageOpen] = useState(false);
-  const sortRef = useRef<HTMLDivElement>(null);
   const perPageRef = useRef<HTMLDivElement>(null);
 
   // Local search state
@@ -83,9 +81,6 @@ export default function ProblemsClient() {
   // Close dropdowns on click outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
-        setSortOpen(false);
-      }
       if (perPageRef.current && !perPageRef.current.contains(e.target as Node)) {
         setPerPageOpen(false);
       }
@@ -202,7 +197,6 @@ export default function ProblemsClient() {
     } else {
       router.push(buildUrl({ sortBy: field, sortOrder: "asc", page: 1 }));
     }
-    setSortOpen(false);
   };
 
   // Difficulty toggle (immediate) — toggle on/off, no "All" button
@@ -222,14 +216,25 @@ export default function ProblemsClient() {
     router.push(buildUrl({ q: formQ.trim(), page: 1 }));
   };
 
-  const sortOptions: { value: SortField; label: string }[] = [
-    { value: "sort_order", label: "Problem ID" },
-    { value: "difficulty", label: "Difficulty" },
-    { value: "title", label: "Name" },
-  ];
-
   const perPageOptions = ["5", "10", "15", "20", "50"];
-  const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
+
+  // Sort direction arrow for a sortable column header; hidden unless hovered or active
+  const SortArrow = ({ field }: { field: SortField }) => {
+    const active = sortBy === field;
+    return (
+      <svg
+        className={`h-3 w-3 shrink-0 transition-all duration-150 ${
+          active ? "opacity-100" : "opacity-0 group-hover:opacity-60"
+        } ${active && sortOrder === "desc" ? "rotate-180" : ""}`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2.5}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    );
+  };
 
   // Client-side completion filtering (tag exclusion is applied server-side
   // so pagination totals stay accurate)
@@ -321,65 +326,6 @@ export default function ProblemsClient() {
                   </div>
                 )}
 
-                {/* Sort dropdown */}
-                <div ref={sortRef} className="relative">
-                  <button
-                    onClick={() => setSortOpen(!sortOpen)}
-                    className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition hover:border-accent/50"
-                  >
-                    <span className="text-muted">Sort:</span>
-                    <span className="font-medium">{currentSortLabel}</span>
-                    <svg
-                      className={`h-3.5 w-3.5 text-muted transition-transform duration-200 ${
-                        sortOrder === "desc" ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 15l7-7 7 7"
-                      />
-                    </svg>
-                  </button>
-                  {sortOpen && (
-                    <div className="absolute top-full left-0 z-50 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-surface shadow-xl">
-                      {sortOptions.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => handleSort(opt.value)}
-                          className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition ${
-                            sortBy === opt.value
-                              ? "bg-accent/10 text-accent font-medium"
-                              : "text-foreground hover:bg-hover"
-                          }`}
-                        >
-                          {opt.label}
-                          {sortBy === opt.value && (
-                            <svg
-                              className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                                sortOrder === "desc" ? "rotate-180" : ""
-                              }`}
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={2.5}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M5 15l7-7 7 7"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -392,18 +338,33 @@ export default function ProblemsClient() {
                 <thead>
                   <tr className="border-b border-border">
                     
-                    <th className="w-12 px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
-                      #
+                    <th
+                      onClick={() => handleSort("sort_order")}
+                      className="group w-12 cursor-pointer select-none px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        # <SortArrow field="sort_order" />
+                      </span>
                     </th>
                     <th className="w-4 px-1 py-1 text-right text-xs font-medium uppercase tracking-wider text-muted">
                     </th>
-                    <th className="w-auto px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
-                      Title
+                    <th
+                      onClick={() => handleSort("title")}
+                      className="group w-auto cursor-pointer select-none px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        Title <SortArrow field="title" />
+                      </span>
                     </th>
-                    <th className="w-23 px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
-                      Difficulty
+                    <th
+                      onClick={() => handleSort("difficulty")}
+                      className="group w-23 cursor-pointer select-none px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted"
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        Difficulty <SortArrow field="difficulty" />
+                      </span>
                     </th>
-                    <th className="w-auto px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    <th className="w-auto px-5 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted">
                       Tags
                     </th>
                   </tr>
@@ -567,7 +528,7 @@ export default function ProblemsClient() {
                       key={tag}
                       onClick={() => toggleTag(tag)}
                       title={isSelected ? "Included" : isExcluded ? "Excluded" : ""}
-                      className={`cursor-pointer rounded-md border px-2.5 py-1 text-sm transition-all duration-150 ${
+                      className={`cursor-pointer rounded-md border px-2.5 py-1  text-sm transition-all duration-150 ${
                         isSelected
                           ? "border-accent/40 bg-accent/15 text-accent font-medium"
                           : isExcluded
