@@ -36,7 +36,7 @@ export default function Navbar() {
   }, [showSignIn]);
 
   return (
-    <nav className="border-b border-border bg-surface">
+    <nav className="fixed inset-x-0 top-0 z-40 border-b border-border bg-surface">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
