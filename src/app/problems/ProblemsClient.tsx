@@ -190,13 +190,12 @@ export default function ProblemsClient() {
 
   // Sort handler
   const handleSort = (field: SortField) => {
-    if (sortBy === field) {
-      router.push(
-        buildUrl({ sortOrder: sortOrder === "asc" ? "desc" : "asc", page: 1 })
-      );
-    } else {
-      router.push(buildUrl({ sortBy: field, sortOrder: "asc", page: 1 }));
-    }
+    const nextUrl =
+      sortBy === field
+        ? buildUrl({ sortOrder: sortOrder === "asc" ? "desc" : "asc", page: 1 })
+        : buildUrl({ sortBy: field, sortOrder: "asc", page: 1 });
+
+    window.history.pushState(null, "", nextUrl.slice(nextUrl.indexOf("?")));
   };
 
   // Difficulty toggle (immediate) — toggle on/off, no "All" button
